@@ -17,33 +17,33 @@ const dummyMessages: ChatMessage[] = [
     id: "1",
     content: "Hello! How can I help you today?",
     isUser: false,
-    timestamp: new Date(Date.now() - 300000),
+    timestamp: new Date("2024-01-01T10:00:00Z"),
   },
   {
     id: "2",
     content: "I need help with writing a blog post about AI.",
     isUser: true,
-    timestamp: new Date(Date.now() - 240000),
+    timestamp: new Date("2024-01-01T10:05:00Z"),
   },
   {
     id: "3",
     content:
       "I'd be happy to help you with that! What specific aspects of AI would you like to focus on in your blog post?",
     isUser: false,
-    timestamp: new Date(Date.now() - 180000),
+    timestamp: new Date("2024-01-01T10:10:00Z"),
   },
   {
     id: "4",
     content: "I want to write about how AI is changing the workplace.",
     isUser: true,
-    timestamp: new Date(Date.now() - 120000),
+    timestamp: new Date("2024-01-01T10:15:00Z"),
   },
   {
     id: "5",
     content:
       "Great topic! Here are some key points you might want to cover: automation of repetitive tasks, AI-powered decision making, new job roles emerging, and the need for human-AI collaboration. Would you like me to elaborate on any of these points?",
     isUser: false,
-    timestamp: new Date(Date.now() - 60000),
+    timestamp: new Date("2024-01-01T10:20:00Z"),
   },
 ];
 
@@ -159,25 +159,17 @@ export const Chat = () => {
           {/* Action Bar */}
           <div className="flex items-center justify-between text-muted-foreground text-sm">
             <div className="flex items-center">
-              <Button
-                variant="ghost"
-                className="flex items-center gap-1 hover:text-foreground transition-colors"
-              >
-                <Plus className="h-4 w-4" />
+              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                <Plus className="h-3 w-3 mr-1" />
+                Add
               </Button>
-              <Button
-                variant="ghost"
-                className="flex items-center gap-1 hover:text-foreground transition-colors"
-              >
-                <Library className="h-4 w-4" />
-                <span>Prompt Library</span>
+              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                <Library className="h-3 w-3 mr-1" />
+                Prompt Library
               </Button>
-              <Button
-                variant="ghost"
-                className="flex items-center gap-1 hover:text-foreground transition-colors"
-              >
-                <Palette className="h-4 w-4" />
-                <span>Style</span>
+              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                <Palette className="h-3 w-3 mr-1" />
+                Style
               </Button>
             </div>
 

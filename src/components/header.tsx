@@ -1,9 +1,29 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, User } from "lucide-react";
+"use client";
+
+import { Settings, LogOut, Settings as SettingsIcon } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { useAuth } from "@/providers/auth.provider";
+import { toast } from "sonner";
 
 export const Header = () => {
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
+  const handlePreferences = () => {
+    toast.warning("This feature is not yet available");
+  };
+
   return (
     <header className="flex items-center justify-between py-3 bg-background border-b px-24">
       <div className="flex items-center">
@@ -15,18 +35,31 @@ export const Header = () => {
         </Link>
       </div>
       <div className="flex items-center gap-3">
-        <Avatar className="h-8 w-8 cursor-pointer">
-          <AvatarImage src="/placeholder-avatar.jpg" alt="Profile" />
-          <AvatarFallback>
-            <User className="h-4 w-4" />
-          </AvatarFallback>
-        </Avatar>
-        <Button
-          variant="ghost"
-          className="p-2 hover:bg-accent rounded-md transition-colors"
-        >
-          <Settings className="h-4 w-4" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="p-2 hover:bg-accent rounded-md transition-colors"
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuItem onClick={handlePreferences} className="text-xs">
+              <SettingsIcon className="h-3 w-3 mr-2" />
+              Preferences
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleLogout}
+              variant="destructive"
+              className="text-xs"
+            >
+              <LogOut className="h-3 w-3 mr-2" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </header>
   );

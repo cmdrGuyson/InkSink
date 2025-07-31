@@ -62,9 +62,12 @@ export const DocumentName = ({
         className
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center">
         <span className="text-sm text-muted-foreground font-medium">
-          Writes/
+          Writes
+        </span>
+        <span className="text-sm text-muted-foreground font-medium mx-1">
+          /
         </span>
         {isEditing ? (
           <Input
