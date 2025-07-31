@@ -5,7 +5,11 @@ import { cn } from "@/lib/utils";
 import { LeftPanel } from "./left-panel";
 import { RightPanel } from "./right-panel";
 
-export const Workspace = () => {
+interface WorkspaceProps {
+  documentId?: string;
+}
+
+export const Workspace = ({ documentId }: WorkspaceProps) => {
   const [leftWidth, setLeftWidth] = useState(70);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -53,7 +57,7 @@ export const Workspace = () => {
     >
       {/* Left Panel */}
       <div className="h-full overflow-auto" style={{ width: `${leftWidth}%` }}>
-        <LeftPanel />
+        <LeftPanel documentId={documentId} />
       </div>
 
       {/* Resizable Divider */}

@@ -1,13 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MinimalTiptapEditor } from "../ui/minimal-tiptap";
 import { Content } from "@tiptap/react";
 import { DocumentName } from "./document-name";
+import { documentStore } from "@/stores/document.store";
+import { observer } from "mobx-react-lite";
 
-const Editor = () => {
-  const [value, setValue] = useState<Content>("");
+interface EditorProps {
+  documentId?: string;
+}
+
+const Editor = observer(({ documentId }: EditorProps) => {
+  const [value, setValue] = useState<Content>();
   const [documentName, setDocumentName] = useState("Untitled Document");
+
+  // Load document when documentId changes
+  useEffect(() => {
+    if (documentId) {
+      documentStore.getDocumentById(documentId);
+    }
+  }, [documentId]);
+
+  // Update document name when selected document changes
+  useEffect(() => {
+    if (documentStore.selectedDocument) {
+      setDocumentName(documentStore.selectedDocument.title);
+    }
+  }, []);
 
   const handleDocumentNameChange = (name: string) => {
     setDocumentName(name);
@@ -34,6 +54,6 @@ const Editor = () => {
       />
     </div>
   );
-};
+});
 
 export default Editor;

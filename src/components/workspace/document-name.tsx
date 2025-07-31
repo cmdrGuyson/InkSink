@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { FolderOpen, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDocumentManagement } from "@/hooks/use-document-management";
+import { OpenDocumentsModal } from "./open-documents-modal";
 
 interface DocumentNameProps {
   initialName?: string;
@@ -20,6 +22,17 @@ export const DocumentName = ({
   const [isEditing, setIsEditing] = useState(false);
   const [documentName, setDocumentName] = useState(initialName);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const {
+    createNewDocument,
+    openDocument,
+    openDocumentsModal,
+    closeDocumentsModal,
+    isOpenDocumentsModalOpen,
+    documents,
+    isCreatingDocument,
+    isLoadingDocuments,
+  } = useDocumentManagement();
 
   useEffect(() => {
     if (isEditing && inputRef.current) {
@@ -56,65 +69,70 @@ export const DocumentName = ({
   };
 
   return (
-    <div
-      className={cn(
-        "flex items-center justify-between gap-2 px-5 h-10 border-b bg-muted/30 shrink-0",
-        className
-      )}
-    >
-      <div className="flex items-center">
-        <span className="text-sm text-muted-foreground font-medium">
-          Writes
-        </span>
-        <span className="text-sm text-muted-foreground font-medium mx-1">
-          /
-        </span>
-        {isEditing ? (
-          <Input
-            ref={inputRef}
-            value={documentName}
-            onChange={handleInputChange}
-            onBlur={handleInputBlur}
-            onKeyDown={handleKeyDown}
-            className="h-8 px-2 text-sm font-medium border-0 bg-transparent focus-visible:ring-1 focus-visible:ring-ring"
-            placeholder="Enter document name..."
-          />
-        ) : (
-          <span
-            className="text-sm font-medium text-foreground cursor-pointer hover:text-primary transition-colors px-2 py-1 rounded hover:bg-muted/50"
-            onDoubleClick={handleDoubleClick}
-          >
-            {documentName}
-          </span>
+    <>
+      <div
+        className={cn(
+          "flex items-center justify-between gap-2 px-5 h-10 border-b bg-muted/30 shrink-0",
+          className
         )}
+      >
+        <div className="flex items-center">
+          <span className="text-sm text-muted-foreground font-medium">
+            Writes
+          </span>
+          <span className="text-sm text-muted-foreground font-medium mx-1">
+            /
+          </span>
+          {isEditing ? (
+            <Input
+              ref={inputRef}
+              value={documentName}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
+              onKeyDown={handleKeyDown}
+              className="h-8 px-2 text-sm font-medium border-0 bg-transparent focus-visible:ring-1 focus-visible:ring-ring"
+              placeholder="Enter document name..."
+            />
+          ) : (
+            <span
+              className="text-sm font-medium text-foreground cursor-pointer hover:text-primary transition-colors px-2 py-1 rounded hover:bg-muted/50"
+              onDoubleClick={handleDoubleClick}
+            >
+              {documentName}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={openDocumentsModal}
+          >
+            <FolderOpen className="h-3 w-3" />
+            Open Recent
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 px-2 text-xs"
+            onClick={createNewDocument}
+            disabled={isCreatingDocument}
+          >
+            <FileText className="h-3 w-3" />
+            {isCreatingDocument ? "Creating..." : "New Document"}
+          </Button>
+        </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2 text-xs"
-          onClick={() => {
-            // Handle open document functionality
-            console.log("Open document clicked");
-          }}
-        >
-          <FolderOpen className="h-3 w-3" />
-          Open Recent
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-7 px-2 text-xs"
-          onClick={() => {
-            // Handle new document functionality
-            console.log("New document clicked");
-          }}
-        >
-          <FileText className="h-3 w-3" />
-          New Document
-        </Button>
-      </div>
-    </div>
+      <OpenDocumentsModal
+        isOpen={isOpenDocumentsModalOpen}
+        onClose={closeDocumentsModal}
+        onOpenDocument={openDocument}
+        documents={documents}
+        loading={isLoadingDocuments}
+      />
+    </>
   );
 };
