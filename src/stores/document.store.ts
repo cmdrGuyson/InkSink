@@ -2,6 +2,7 @@ import {
   DocumentInsert,
   DocumentService,
   PartialDocument,
+  Document,
 } from "@/services/document.service";
 import { makeAutoObservable, runInAction } from "mobx";
 
@@ -11,7 +12,7 @@ class DocumentStore {
   documents: PartialDocument[] = [];
 
   loadingSelectedDocument: boolean = false;
-  selectedDocument: PartialDocument | null = null;
+  selectedDocument: Document | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -70,6 +71,38 @@ class DocumentStore {
           e instanceof Error ? e.message : "Failed to fetch document";
         this.loadingSelectedDocument = false;
       });
+    }
+  }
+
+  async updateDocument(id: string, data: { title?: string; content?: string }) {
+    this.error = null;
+    try {
+      const updatedDocument = await DocumentService.updateDocument(id, data);
+
+      runInAction(() => {
+        // Update selected document if it's the one being updated
+        if (this.selectedDocument?.id === id) {
+          this.selectedDocument = updatedDocument;
+        }
+
+        // Update document in the documents list
+        const documentIndex = this.documents.findIndex((doc) => doc.id === id);
+        if (documentIndex !== -1) {
+          this.documents[documentIndex] = {
+            ...this.documents[documentIndex],
+            title: updatedDocument.title,
+            updated_at: updatedDocument.updated_at,
+          };
+        }
+      });
+
+      return updatedDocument;
+    } catch (e: unknown) {
+      runInAction(() => {
+        this.error =
+          e instanceof Error ? e.message : "Failed to update document";
+      });
+      throw e;
     }
   }
 }

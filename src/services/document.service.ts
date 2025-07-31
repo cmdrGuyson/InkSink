@@ -137,4 +137,51 @@ export class DocumentService {
       );
     }
   }
+
+  /**
+   * Update a document by ID
+   * @param documentId - Document ID to update
+   * @param updateData - Data to update
+   * @returns Updated document
+   */
+  static async updateDocument(
+    documentId: string,
+    updateData: Partial<Pick<DocumentUpdate, "title" | "content">>
+  ): Promise<Document> {
+    try {
+      const updatePayload: DocumentUpdate = {
+        ...updateData,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
+        .from("document")
+        .update(updatePayload)
+        .eq("id", documentId)
+        .select()
+        .single();
+
+      if (error) {
+        throw new DocumentServiceError(
+          `Failed to update: ${error.message}`,
+          error.code
+        );
+      }
+
+      if (!data) {
+        throw new DocumentServiceError("No data returned after update");
+      }
+
+      return data;
+    } catch (error) {
+      if (error instanceof DocumentServiceError) {
+        throw error;
+      }
+      throw new DocumentServiceError(
+        `Unexpected error updating: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }
 }
