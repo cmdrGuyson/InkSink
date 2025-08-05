@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -18,7 +18,6 @@ import {
   Save,
   AlertCircle,
 } from "lucide-react";
-import { useStores } from "@/providers/store.provider";
 import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/providers/auth.provider";
@@ -31,8 +30,6 @@ interface AppPreferencesProps {
   showOpenAiKey: boolean;
   setShowOpenAiKey: (value: boolean) => void;
   handleSaveApiKey: () => void;
-  isSaving: boolean;
-  error: string | null;
 }
 
 const AppPreferences = ({
@@ -41,8 +38,6 @@ const AppPreferences = ({
   showOpenAiKey,
   setShowOpenAiKey,
   handleSaveApiKey,
-  isSaving,
-  error,
 }: AppPreferencesProps) => (
   <div className="space-y-6">
     {/* OpenAI API Key */}
@@ -76,15 +71,10 @@ const AppPreferences = ({
       <p className="text-xs text-muted-foreground">
         Your API key is encrypted and stored securely
       </p>
-      {error && (
-        <div className="flex items-center gap-2 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4" />
-          {error}
-        </div>
-      )}
-      <Button onClick={handleSaveApiKey} disabled={isSaving} className="w-fit">
+
+      <Button onClick={handleSaveApiKey} className="w-fit">
         <Save className="h-4 w-4 mr-2" />
-        {isSaving ? "Saving..." : "Save API Key"}
+        Save API Key
       </Button>
     </div>
 
@@ -266,44 +256,24 @@ const AccountPreferences = ({
 );
 
 const Settings = observer(() => {
-  const { keyStore } = useStores();
   const { user } = useAuth();
   const supabase = createClient();
-  const [activeSection, setActiveSection] = useState<SettingsSection>("app");
-  const [openAiKey, setOpenAiKey] = useState("");
-  const [showOpenAiKey, setShowOpenAiKey] = useState(false);
+  const [activeSection, setActiveSection] =
+    useState<SettingsSection>("account");
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
 
-  // Initialize the input with the stored key when component mounts
-  useEffect(() => {
-    if (keyStore.openAiApiKey) {
-      setOpenAiKey(keyStore.openAiApiKey);
-    }
-  }, [keyStore.openAiApiKey]);
+  const [openAiKey, setOpenAiKey] = useState("");
+  const [showOpenAiKey, setShowOpenAiKey] = useState(false);
 
   const handleSaveApiKey = async () => {
-    if (!openAiKey.trim()) {
-      toast.error("Please enter a valid API key");
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      await keyStore.saveOpenAiApiKey(openAiKey.trim());
-      toast.success("API key saved successfully!");
-    } catch (error) {
-      console.error("Failed to save API key:", error);
-      toast.error("Failed to save API key. Please try again.");
-    } finally {
-      setIsSaving(false);
-    }
+    // Implement
   };
 
   const handleResetPassword = async () => {
@@ -365,8 +335,6 @@ const Settings = observer(() => {
     }
   };
 
-  if (keyStore.loading) return;
-
   return (
     <Card className="h-[700px] shadow-lg border mx-24">
       <div className="h-full bg-background flex">
@@ -378,6 +346,10 @@ const Settings = observer(() => {
           </div>
 
           <nav className="space-y-2">
+            {/*
+            
+              TODO: Implement App Preferences
+            
             <Button
               variant={activeSection === "app" ? "default" : "ghost"}
               className="w-full justify-start gap-3"
@@ -385,7 +357,8 @@ const Settings = observer(() => {
             >
               <Key className="h-4 w-4" />
               App Preferences
-            </Button>
+            </Button> */}
+
             <Button
               variant={activeSection === "account" ? "default" : "ghost"}
               className="w-full justify-start gap-3"
@@ -412,25 +385,14 @@ const Settings = observer(() => {
                       Configure your AI service API keys and application
                       settings
                     </p>
-                    <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-                      <p className="text-sm text-yellow-800">
-                        🔒 <strong>Privacy First:</strong> Your API keys are
-                        encrypted and stored locally in your browser. We never
-                        send your keys to our servers or store them in the
-                        cloud. The development team has no access to your API
-                        tokens.
-                      </p>
-                    </div>
                   </div>
                   <div className="flex-1 overflow-y-auto">
                     <AppPreferences
-                      openAiKey={openAiKey}
                       setOpenAiKey={setOpenAiKey}
-                      showOpenAiKey={showOpenAiKey}
+                      openAiKey={openAiKey}
                       setShowOpenAiKey={setShowOpenAiKey}
+                      showOpenAiKey={showOpenAiKey}
                       handleSaveApiKey={handleSaveApiKey}
-                      isSaving={isSaving}
-                      error={keyStore.error}
                     />
                   </div>
                 </div>

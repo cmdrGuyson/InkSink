@@ -10,7 +10,7 @@ const MainApp = async ({ params }: PageProps) => {
   const { documentId } = await params;
 
   return (
-    <div className="flex-1 overflow-hidden px-24 py-12">
+    <div className="flex-1 overflow-hidden px-24 py-12 h-full">
       <Workspace documentId={documentId} />
     </div>
   );
