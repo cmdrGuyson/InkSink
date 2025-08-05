@@ -5,12 +5,70 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Plus, Clock, SendHorizonal, Library, Palette } from "lucide-react";
 import { useChat } from "@ai-sdk/react";
+import { observer } from "mobx-react-lite";
+import { useStores } from "@/providers/store.provider";
+import { useParams } from "next/navigation";
+import { Message } from "ai";
+import { Json } from "@/types/supabase";
 
-export const Chat = () => {
+interface ChatProps {
+  documentId?: string;
+}
+
+export const Chat = observer(({ documentId }: ChatProps) => {
+  const { chatStore } = useStores();
+  const params = useParams();
+
+  // Get documentId from props or params
+  const currentDocumentId = documentId || (params.documentId as string);
+
+  // Load the most recent chat when component mounts or documentId changes
+  useEffect(() => {
+    if (currentDocumentId) {
+      chatStore.loadMostRecentChat(currentDocumentId);
+    } else {
+      chatStore.clearCurrentChat();
+    }
+  }, [currentDocumentId, chatStore]);
+
   const { messages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({
       api: "/api/chat",
+      initialMessages: chatStore.currentMessages as unknown as Message[],
     });
+
+  // Save messages whenever they change
+  useEffect(() => {
+    const saveMessages = async () => {
+      if (!currentDocumentId || messages.length === 0) return;
+
+      try {
+        if (chatStore.hasCurrentChat) {
+          await chatStore.updateChat(chatStore.currentChat!.id, {
+            messages: messages as unknown as Json,
+          });
+        } else {
+          // Create new chat with all messages
+          await chatStore.createChat({
+            document_id: currentDocumentId,
+            messages: messages as unknown as Json,
+            title: "New Chat",
+          });
+        }
+      } catch (error) {
+        console.error("Failed to save messages:", error);
+      }
+    };
+
+    // Only save if we have messages and they're different from stored messages
+    const storedMessages = chatStore.currentMessages as unknown as Message[];
+    const messagesChanged =
+      JSON.stringify(messages) !== JSON.stringify(storedMessages);
+
+    if (messages.length > 0 && messagesChanged) {
+      saveMessages();
+    }
+  }, [messages, currentDocumentId, chatStore]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -37,7 +95,21 @@ export const Chat = () => {
     <div className="h-full flex flex-col bg-background">
       {/* Toolbar */}
       <div className="flex items-center justify-between h-10 border-b px-2 shrink-0">
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => {
+            if (currentDocumentId) {
+              chatStore.createChat({
+                document_id: currentDocumentId,
+                messages: [],
+                title: "New Chat",
+              });
+            }
+          }}
+          title="New Chat"
+        >
           <Plus className="h-4 w-4" />
         </Button>
         <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -47,6 +119,16 @@ export const Chat = () => {
 
       {/* Chat Messages Area */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0">
+        {chatStore.loading && (
+          <div className="flex justify-center">
+            <p className="text-muted-foreground text-sm">Loading chat...</p>
+          </div>
+        )}
+        {chatStore.error && (
+          <div className="flex justify-center">
+            <p className="text-destructive text-sm">Error: {chatStore.error}</p>
+          </div>
+        )}
         {messages.map((message) => (
           <div
             key={message.id}
@@ -127,4 +209,4 @@ export const Chat = () => {
       </div>
     </div>
   );
-};
+});

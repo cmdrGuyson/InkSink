@@ -1,9 +1,13 @@
 import { Chat } from "./chat";
 
-export const RightPanel = () => {
+interface RightPanelProps {
+  documentId?: string;
+}
+
+export const RightPanel = ({ documentId }: RightPanelProps) => {
   return (
     <div className="h-full bg-background ">
-      <Chat />
+      <Chat documentId={documentId} />
     </div>
   );
 };

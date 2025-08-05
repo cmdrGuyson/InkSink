@@ -73,7 +73,7 @@ export const Workspace = ({ documentId }: WorkspaceProps) => {
         className="h-full overflow-auto"
         style={{ width: `${100 - leftWidth}%` }}
       >
-        <RightPanel />
+        <RightPanel documentId={documentId} />
       </div>
     </div>
   );
