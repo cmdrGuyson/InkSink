@@ -53,6 +53,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // If user is signed in and the current path is /app, redirect to /app/write
+  if (user && request.nextUrl.pathname === "/app") {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = "/app/write";
+    return NextResponse.redirect(redirectUrl);
+  }
+
   return supabaseResponse;
 }
 

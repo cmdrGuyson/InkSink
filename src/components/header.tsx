@@ -2,6 +2,7 @@
 
 import { Settings, LogOut, Settings as SettingsIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -11,24 +12,24 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { useAuth } from "@/providers/auth.provider";
-import { toast } from "sonner";
 
 export const Header = () => {
   const { signOut } = useAuth();
+  const router = useRouter();
 
   const handleLogout = async () => {
     await signOut();
   };
 
   const handlePreferences = () => {
-    toast.warning("This feature is not yet available");
+    router.push("/app/preferences");
   };
 
   return (
     <header className="flex items-center justify-between py-3 bg-background border-b px-24">
       <div className="flex items-center">
         <Link
-          href="/"
+          href="/app/write"
           className="text-xl font-semibold font-mono cursor-pointer"
         >
           InkSink

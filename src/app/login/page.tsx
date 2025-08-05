@@ -35,7 +35,7 @@ export default function LoginPage() {
 
       if (data.user) {
         // Redirect to app after successful login
-        router.push("/write");
+        router.push("/app/write");
         router.refresh();
       }
     } catch (error) {
