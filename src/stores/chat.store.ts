@@ -50,6 +50,47 @@ class ChatStore {
     }
   }
 
+  async loadChatMetadataForDocument(documentId: string) {
+    this.loading = true;
+    this.error = null;
+    try {
+      const chatMetadata =
+        await ChatService.getChatMetadataByDocumentId(documentId);
+      runInAction(() => {
+        this.loading = false;
+      });
+      return chatMetadata;
+    } catch (e: unknown) {
+      runInAction(() => {
+        this.error =
+          e instanceof Error ? e.message : "Failed to load chat metadata";
+        this.loading = false;
+      });
+      throw e;
+    }
+  }
+
+  async loadChatById(chatId: string) {
+    this.loading = true;
+    this.error = null;
+    try {
+      const chat = await ChatService.getChatById(chatId);
+      runInAction(() => {
+        if (chat) {
+          this.currentChat = chat;
+        }
+        this.loading = false;
+      });
+      return chat;
+    } catch (e: unknown) {
+      runInAction(() => {
+        this.error = e instanceof Error ? e.message : "Failed to load chat";
+        this.loading = false;
+      });
+      throw e;
+    }
+  }
+
   async createChat(data: Omit<ChatInsert, "id" | "created_at" | "updated_at">) {
     this.error = null;
     try {

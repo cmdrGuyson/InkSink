@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,6 +18,10 @@ import { useParams } from "next/navigation";
 import { Message } from "ai";
 import { Json } from "@/types/supabase";
 import type { Chat as ChatType } from "@/services/chat.service";
+import { ChatService } from "@/services/chat.service";
+
+// Type for chat metadata (without messages)
+type ChatMetadata = Omit<ChatType, "messages">;
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,10 +37,22 @@ interface ChatProps {
 export const Chat = observer(({ documentId }: ChatProps) => {
   const { chatStore } = useStores();
   const params = useParams();
-  const [recentChats, setRecentChats] = useState<ChatType[]>([]);
+  const [recentChats, setRecentChats] = useState<ChatMetadata[]>([]);
 
   // Get documentId from props or params
   const currentDocumentId = documentId || (params.documentId as string);
+
+  // Load recent chats for the dropdown (metadata only, no messages)
+  const loadRecentChats = useCallback(async () => {
+    if (!currentDocumentId) return;
+    try {
+      const chatMetadata =
+        await chatStore.loadChatMetadataForDocument(currentDocumentId);
+      setRecentChats(chatMetadata.slice(0, 10)); // Get only the 10 most recent
+    } catch (error) {
+      console.error("Failed to load recent chats:", error);
+    }
+  }, [currentDocumentId, chatStore]);
 
   // Load the most recent chat when component mounts or documentId changes
   useEffect(() => {
@@ -46,18 +62,7 @@ export const Chat = observer(({ documentId }: ChatProps) => {
     } else {
       chatStore.clearCurrentChat();
     }
-  }, [currentDocumentId, chatStore]);
-
-  // Load recent chats for the dropdown
-  const loadRecentChats = async () => {
-    if (!currentDocumentId) return;
-    try {
-      const chats = await chatStore.loadAllChatsForDocument(currentDocumentId);
-      setRecentChats(chats.slice(0, 10)); // Get only the 10 most recent
-    } catch (error) {
-      console.error("Failed to load recent chats:", error);
-    }
-  };
+  }, [currentDocumentId, chatStore, loadRecentChats]);
 
   const {
     messages,
@@ -71,10 +76,12 @@ export const Chat = observer(({ documentId }: ChatProps) => {
     initialMessages: chatStore.currentMessages as unknown as Message[],
   });
 
-  // Save messages whenever they change
+  // Save messages when streaming is complete or user sends a message
   useEffect(() => {
     const saveMessages = async () => {
       if (!currentDocumentId || messages.length === 0) return;
+
+      console.log("Running save messages");
 
       try {
         if (chatStore.hasCurrentChat) {
@@ -83,10 +90,25 @@ export const Chat = observer(({ documentId }: ChatProps) => {
           });
         } else {
           // Create new chat with all messages only when first message is sent
+          // Generate title from the first user message
+          const firstUserMessage = messages.find((msg) => msg.role === "user");
+          let chatTitle = "New Chat";
+
+          if (firstUserMessage?.content) {
+            try {
+              chatTitle = await ChatService.generateTitle(
+                firstUserMessage.content
+              );
+            } catch (error) {
+              console.error("Failed to generate chat title:", error);
+              // Fall back to "New Chat" if title generation fails
+            }
+          }
+
           await chatStore.createChat({
             document_id: currentDocumentId,
             messages: messages as unknown as Json,
-            title: "New Chat",
+            title: chatTitle,
           });
           // Reload recent chats after creating a new one
           await loadRecentChats();
@@ -96,17 +118,31 @@ export const Chat = observer(({ documentId }: ChatProps) => {
       }
     };
 
-    // Only save if we have messages and they're different from stored messages
-    const storedMessages = chatStore.currentMessages as unknown as Message[];
+    // Check if messages have actually changed by comparing with previous ref
     const messagesChanged =
-      JSON.stringify(messages) !== JSON.stringify(storedMessages);
+      messages.length !== previousMessagesRef.current.length ||
+      messages.some((msg, index) => {
+        const prevMsg = previousMessagesRef.current[index];
+        return (
+          !prevMsg || msg.id !== prevMsg.id || msg.content !== prevMsg.content
+        );
+      });
 
-    if (messages.length > 0 && messagesChanged) {
+    // Only save when:
+    // 1. Messages have changed
+    // 2. Not currently streaming (isLoading is false)
+    // 3. There are messages to save
+    if (messages.length > 0 && messagesChanged && !isLoading) {
       saveMessages();
+      // Update the ref with current messages after saving
+      previousMessagesRef.current = [...messages];
     }
-  }, [messages, currentDocumentId, chatStore]);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, currentDocumentId, chatStore, isLoading]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const previousMessagesRef = useRef<Message[]>([]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -119,6 +155,7 @@ export const Chat = observer(({ documentId }: ChatProps) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+
       handleSubmit();
     }
   };
@@ -146,10 +183,9 @@ export const Chat = observer(({ documentId }: ChatProps) => {
 
   const handleSelectChat = async (chatId: string) => {
     try {
-      // Find the chat in recent chats
-      const selectedChat = recentChats.find((chat) => chat.id === chatId);
+      // Load the full chat data (including messages) by ID
+      const selectedChat = await chatStore.loadChatById(chatId);
       if (selectedChat) {
-        chatStore.currentChat = selectedChat;
         // Update the useChat hook with the selected chat's messages
         setMessages(selectedChat.messages as unknown as Message[]);
       }

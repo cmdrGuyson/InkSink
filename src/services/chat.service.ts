@@ -141,6 +141,78 @@ export class ChatService {
   }
 
   /**
+   * Get chat metadata (without messages) for a document
+   * @param documentId - Document ID to get chats for
+   * @returns Array of chat metadata ordered by most recent first
+   */
+  static async getChatMetadataByDocumentId(
+    documentId: string
+  ): Promise<Omit<Chat, "messages">[]> {
+    try {
+      const { data, error } = await supabase
+        .from("chat")
+        .select("id, title, created_at, updated_at, document_id, user_id")
+        .eq("document_id", documentId)
+        .order("updated_at", { ascending: false });
+
+      if (error) {
+        throw new ChatServiceError(
+          `Failed to retrieve chat metadata: ${error.message}`,
+          error.code
+        );
+      }
+
+      return data || [];
+    } catch (error) {
+      if (error instanceof ChatServiceError) {
+        throw error;
+      }
+      throw new ChatServiceError(
+        `Unexpected error retrieving chat metadata: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }
+
+  /**
+   * Get a specific chat by ID with all data including messages
+   * @param chatId - Chat ID to retrieve
+   * @returns Chat with messages or null if not found
+   */
+  static async getChatById(chatId: string): Promise<Chat | null> {
+    try {
+      const { data, error } = await supabase
+        .from("chat")
+        .select("*")
+        .eq("id", chatId)
+        .single();
+
+      if (error) {
+        if (error.code === "PGRST116") {
+          // No chat found with this ID
+          return null;
+        }
+        throw new ChatServiceError(
+          `Failed to retrieve chat: ${error.message}`,
+          error.code
+        );
+      }
+
+      return data;
+    } catch (error) {
+      if (error instanceof ChatServiceError) {
+        throw error;
+      }
+      throw new ChatServiceError(
+        `Unexpected error retrieving chat: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }
+
+  /**
    * Update a chat by ID
    * @param chatId - Chat ID to update
    * @param updateData - Data to update
@@ -207,6 +279,47 @@ export class ChatService {
       }
       throw new ChatServiceError(
         `Unexpected error deleting chat: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
+  }
+
+  /**
+   * Generate a title for a chat based on the first message
+   * @param message - The first message content to generate title from
+   * @returns Generated title
+   */
+  static async generateTitle(message: string): Promise<string> {
+    try {
+      const response = await fetch("/api/chat-title", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ message }),
+      });
+
+      if (!response.ok) {
+        throw new ChatServiceError(
+          `Failed to generate title: ${response.statusText}`,
+          response.status.toString()
+        );
+      }
+
+      const data = await response.json();
+
+      if (!data.title) {
+        throw new ChatServiceError("No title received from API");
+      }
+
+      return data.title;
+    } catch (error) {
+      if (error instanceof ChatServiceError) {
+        throw error;
+      }
+      throw new ChatServiceError(
+        `Unexpected error generating title: ${
           error instanceof Error ? error.message : "Unknown error"
         }`
       );
