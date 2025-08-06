@@ -19,6 +19,7 @@ import { Message } from "ai";
 import { Json } from "@/types/supabase";
 import type { Chat as ChatType } from "@/services/chat.service";
 import { ChatService } from "@/services/chat.service";
+import type { Editor as TiptapEditor } from "@tiptap/react";
 
 // Type for chat metadata (without messages)
 type ChatMetadata = Omit<ChatType, "messages">;
@@ -32,9 +33,10 @@ import {
 
 interface ChatProps {
   documentId?: string;
+  editor?: TiptapEditor | null;
 }
 
-export const Chat = observer(({ documentId }: ChatProps) => {
+export const Chat = observer(({ documentId, editor }: ChatProps) => {
   const { chatStore } = useStores();
   const params = useParams();
   const [recentChats, setRecentChats] = useState<ChatMetadata[]>([]);
@@ -74,6 +76,10 @@ export const Chat = observer(({ documentId }: ChatProps) => {
   } = useChat({
     api: "/api/chat",
     initialMessages: chatStore.currentMessages as unknown as Message[],
+    body: {
+      content: editor?.getText().trim() || "",
+      style: "", // TODO: Implement writing style
+    },
   });
 
   // Save messages when streaming is complete or user sends a message

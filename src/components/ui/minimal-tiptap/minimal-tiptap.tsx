@@ -1,7 +1,6 @@
 import "./styles/index.css";
 
-import type { Content, Editor } from "@tiptap/react";
-import type { UseMinimalTiptapEditorProps } from "./hooks/use-minimal-tiptap";
+import type { Editor } from "@tiptap/react";
 import { EditorContent } from "@tiptap/react";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
@@ -11,15 +10,12 @@ import { SectionThree } from "./components/section/three";
 import { SectionFour } from "./components/section/four";
 import { SectionFive } from "./components/section/five";
 import { LinkBubbleMenu } from "./components/bubble-menu/link-bubble-menu";
-import { useMinimalTiptapEditor } from "./hooks/use-minimal-tiptap";
 import { MeasuredContainer } from "./components/measured-container";
 
-export interface MinimalTiptapProps
-  extends Omit<UseMinimalTiptapEditorProps, "onUpdate"> {
-  value?: Content;
-  onChange?: (value: Content) => void;
+export interface MinimalTiptapProps {
   className?: string;
   editorContentClassName?: string;
+  editor: Editor | null;
 }
 
 const Toolbar = ({ editor }: { editor: Editor }) => (
@@ -66,18 +62,10 @@ const Toolbar = ({ editor }: { editor: Editor }) => (
 );
 
 export const MinimalTiptapEditor = ({
-  value,
-  onChange,
   className,
   editorContentClassName,
-  ...props
+  editor,
 }: MinimalTiptapProps) => {
-  const editor = useMinimalTiptapEditor({
-    value,
-    onUpdate: onChange,
-    ...props,
-  });
-
   if (!editor) {
     return null;
   }

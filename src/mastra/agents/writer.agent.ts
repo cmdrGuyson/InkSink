@@ -24,9 +24,27 @@ Writing Guidelines:
 For each request, consider the platform, audience, and content type to deliver the most effective writing.
 `;
 
+interface WriterAgentInputs {
+  content?: string;
+  style?: string;
+}
+
+export const getSystemInstructions = (inputs?: WriterAgentInputs) => {
+  const { content, style } = inputs || {};
+
+  const _instructions = `${SYSTEM_INSTRUCTIONS}
+  
+${content ? `The content already written:\n${content}` : ""}
+
+${style ? `The writing style of the user:\n${style}` : ""}
+  `;
+
+  return _instructions;
+};
+
 const writerAgent = new Agent({
   name: "Writer Agent",
-  instructions: SYSTEM_INSTRUCTIONS,
+  instructions: getSystemInstructions(),
   model: openai("gpt-4o"),
 });
 
