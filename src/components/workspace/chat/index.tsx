@@ -343,10 +343,10 @@ export const Chat = observer(({ documentId }: ChatProps) => {
           {/* Action Bar */}
           <div className="flex items-center justify-between text-muted-foreground text-sm">
             <div className="flex items-center">
-              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+              {/* <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
                 <Plus className="h-3 w-3 mr-1" />
                 Add
-              </Button>
+              </Button> */}
               <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
                 <Library className="h-3 w-3 mr-1" />
                 Prompt Library

@@ -2,6 +2,7 @@
 
 import { Settings, LogOut, Settings as SettingsIcon } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import {
@@ -22,16 +23,23 @@ export const Header = () => {
   };
 
   const handlePreferences = () => {
-    router.push("/app/preferences");
+    router.push("/desk/preferences");
   };
 
   return (
     <header className="flex items-center justify-between py-3 bg-background border-b px-24">
       <div className="flex items-center">
         <Link
-          href="/app/write"
-          className="text-xl font-semibold font-mono cursor-pointer"
+          href="/desk/write"
+          className="flex items-center gap-2 text-xl font-semibold font-mono cursor-pointer hover:opacity-80 transition-opacity"
         >
+          <Image
+            src="/logo.svg"
+            alt="InkSink Logo"
+            width={24}
+            height={24}
+            className="w-6 h-6"
+          />
           InkSink
         </Link>
       </div>

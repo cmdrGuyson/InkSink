@@ -1,0 +1,29 @@
+<!-- 
+  Ink Sink Logo
+  This SVG file contains a simple, modern logo combining an ink drop and a sink drain.
+  It's designed to be scalable and suitable for use as a website favicon or a primary brand logo.
+-->
+<svg width="200" height="200" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Black circular background -->
+  <circle cx="50" cy="50" r="50" fill="black"/>
+  
+  <!-- 
+    White ink drop shape.
+    The path is drawn using a Cubic Bézier curve for smooth, organic sides,
+    and a sharp point at the bottom to resemble a classic ink drop.
+  -->
+  <path 
+    d="M50 15 C70 35, 70 55, 50 85 C30 55, 30 35, 50 15 Z" 
+    fill="white"
+  />
+  
+  <!--
+    "Sink" drain detail inside the ink drop.
+    These lines are black to create a negative space effect, representing the drain.
+    Using simple strokes keeps the design clean and recognizable at small sizes.
+  -->
+  <g stroke="black" stroke-width="3" stroke-linecap="round">
+    <path d="M42 58 H58" />
+    <path d="M45 66 H55" />
+  </g>
+</svg>

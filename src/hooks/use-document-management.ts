@@ -18,7 +18,7 @@ export const useDocumentManagement = () => {
       });
 
       if (newDocument) {
-        router.push(`/app/write/${newDocument.id}`);
+        router.push(`/desk/write/${newDocument.id}`);
       }
     } catch (error) {
       console.error("Failed to create document:", error);
@@ -29,7 +29,7 @@ export const useDocumentManagement = () => {
   };
 
   const openDocument = (documentId: string) => {
-    router.push(`/app/write/${documentId}`);
+    router.push(`/desk/write/${documentId}`);
     setIsOpenDocumentsModalOpen(false);
   };
 

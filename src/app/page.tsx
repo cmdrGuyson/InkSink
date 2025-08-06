@@ -1,7 +1,19 @@
+import Image from "next/image";
+
 export default function Home() {
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col row-start-2 items-center justify-center ">
+        <div className="mb-8">
+          <Image
+            src="/logo.svg"
+            alt="InkSink Logo"
+            width={80}
+            height={80}
+            className="w-12 h-12 sm:w-18 sm:h-18 mx-auto"
+            priority
+          />
+        </div>
         <h1 className=" font-mono text-4xl">InkSink</h1>
         <p className="font-mono text-sm/6 text-center sm:text-left">
           The Kitchen Sink for Writing Content
@@ -10,7 +22,7 @@ export default function Home() {
         <div className="flex gap-4 items-center flex-col sm:flex-row mt-12">
           <a
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-small text-sm h-10 sm:h-12 px-4 sm:px-5 sm:w-auto font-mono"
-            href="/app/write"
+            href="/desk/write"
             rel="noopener noreferrer"
           >
             Get Started

@@ -46,17 +46,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // If user is signed in and the current path is /login or /signup,
-  // redirect the user to /app
+  // redirect the user to /desk
   if (user && ["/login", "/signup"].includes(request.nextUrl.pathname)) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/app";
+    redirectUrl.pathname = "/desk";
     return NextResponse.redirect(redirectUrl);
   }
 
-  // If user is signed in and the current path is /app, redirect to /app/write
-  if (user && request.nextUrl.pathname === "/app") {
+  // If user is signed in and the current path is /desk, redirect to /desk/write
+  if (user && request.nextUrl.pathname === "/desk") {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/app/write";
+    redirectUrl.pathname = "/desk/write";
     return NextResponse.redirect(redirectUrl);
   }
 
