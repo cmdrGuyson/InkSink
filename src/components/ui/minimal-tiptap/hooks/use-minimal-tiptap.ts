@@ -195,6 +195,8 @@ export const useMinimalTiptapEditor = ({
   ...props
 }: UseMinimalTiptapEditorProps) => {
   const throttledSetValue = useThrottle(
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     (value: Content) => onUpdate?.(value),
     throttleDelay
   );
