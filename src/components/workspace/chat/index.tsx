@@ -22,6 +22,7 @@ import { ChatService } from "@/services/chat.service";
 import type { Editor as TiptapEditor } from "@tiptap/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import dayjs from "dayjs";
 
 // Type for chat metadata (without messages)
 type ChatMetadata = Omit<ChatType, "messages">;
@@ -168,18 +169,8 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
     }
   };
 
-  const formatTime = (date: Date) => {
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString([], {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const formatDateTime = (date: string | Date) => {
+    return dayjs(date).format("MMM D, h:mm A");
   };
 
   const handleNewChat = () => {
@@ -268,7 +259,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
                       {chat.title || "Untitled Chat"}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {formatDate(chat.updated_at)}
+                      {formatDateTime(chat.updated_at)}
                     </div>
                   </div>
                   <Button
@@ -344,7 +335,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
                     : "text-muted-foreground"
                 }`}
               >
-                {formatTime(new Date())}
+                {formatDateTime(message.createdAt || new Date().toISOString())}
               </p>
             </div>
           </div>
