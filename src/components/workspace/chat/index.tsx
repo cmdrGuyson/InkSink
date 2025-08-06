@@ -20,6 +20,8 @@ import { Json } from "@/types/supabase";
 import type { Chat as ChatType } from "@/services/chat.service";
 import { ChatService } from "@/services/chat.service";
 import type { Editor as TiptapEditor } from "@tiptap/react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 // Type for chat metadata (without messages)
 type ChatMetadata = Omit<ChatType, "messages">;
@@ -311,7 +313,30 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
                   : "bg-muted text-foreground"
               }`}
             >
-              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              {message.role === "user" ? (
+                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+              ) : (
+                <div className="chat-markdown">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      // Customize links to open in new tab
+                      a: ({ children, href, ...props }) => (
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          {...props}
+                        >
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {message.content}
+                  </ReactMarkdown>
+                </div>
+              )}
               <p
                 className={`text-xs mt-1 ${
                   message.role === "user"
