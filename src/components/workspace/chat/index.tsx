@@ -23,6 +23,7 @@ import type { Editor as TiptapEditor } from "@tiptap/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import dayjs from "dayjs";
+import { toast } from "sonner";
 
 // Type for chat metadata (without messages)
 type ChatMetadata = Omit<ChatType, "messages">;
@@ -369,11 +370,27 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
                 <Plus className="h-3 w-3 mr-1" />
                 Add
               </Button> */}
-              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() =>
+                  toast.info("This feature will be available soon")
+                }
+              >
                 <Library className="h-3 w-3 mr-1" />
                 Prompt Library
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={() =>
+                  toast.info("This feature will be available soon")
+                }
+              >
                 <Palette className="h-3 w-3 mr-1" />
                 Style
               </Button>
