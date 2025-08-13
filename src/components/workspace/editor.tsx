@@ -14,6 +14,7 @@ interface EditorProps {
   isLoading: boolean;
   error: string | null;
   onTitleChange: (newTitle: string) => void;
+  onSaveTitle: (newTitle: string) => void;
 }
 
 const Editor = observer(
@@ -25,6 +26,7 @@ const Editor = observer(
     isLoading,
     error,
     onTitleChange,
+    onSaveTitle,
   }: EditorProps) => {
     if (isLoading) {
       return (
@@ -50,7 +52,11 @@ const Editor = observer(
 
     return (
       <div className="h-full flex flex-col">
-        <DocumentName initialName={title} onNameChange={onTitleChange} />
+        <DocumentName
+          initialName={title}
+          onNameChange={onTitleChange}
+          onSaveTitle={onSaveTitle}
+        />
         <div className="flex-1 relative">
           <MinimalTiptapEditor
             editor={editor}

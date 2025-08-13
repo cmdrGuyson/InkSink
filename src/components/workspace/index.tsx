@@ -26,6 +26,7 @@ export const Workspace = ({ documentId }: WorkspaceProps) => {
     error,
     handleContentChange,
     handleTitleChange,
+    saveTitleImmediately,
   } = useDocumentEditing({ documentId });
 
   // Create editor instance
@@ -38,24 +39,6 @@ export const Workspace = ({ documentId }: WorkspaceProps) => {
     editable: true,
     editorClassName: "h-full",
   });
-
-  // Update editor content when content changes
-  useEffect(() => {
-    if (editor && !editor.isDestroyed) {
-      // If content is undefined, clear the editor
-      if (!content) {
-        if (!editor.isEmpty) {
-          editor.commands.clearContent();
-        }
-      } else {
-        // Only update if the content is different from what's currently in the editor
-        const currentContent = editor.getJSON();
-        if (JSON.stringify(currentContent) !== JSON.stringify(content)) {
-          editor.commands.setContent(content);
-        }
-      }
-    }
-  }, [editor, content]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -109,6 +92,7 @@ export const Workspace = ({ documentId }: WorkspaceProps) => {
           isLoading={isLoading}
           error={error}
           onTitleChange={handleTitleChange}
+          onSaveTitle={saveTitleImmediately}
         />
       </div>
 

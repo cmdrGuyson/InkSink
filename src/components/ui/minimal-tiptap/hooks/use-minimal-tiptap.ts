@@ -256,6 +256,16 @@ export const useMinimalTiptapEditor = ({
     },
   });
 
+  React.useEffect(() => {
+    if (editor && value) {
+      // Only update if the content is actually different to avoid unnecessary updates
+      const currentContent = getOutput(editor, output);
+      if (JSON.stringify(currentContent) !== JSON.stringify(value)) {
+        editor.commands.setContent(value);
+      }
+    }
+  }, [value, editor, output]);
+
   return mainEditor;
 };
 

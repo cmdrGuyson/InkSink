@@ -12,6 +12,7 @@ interface LeftPanelProps {
   isLoading: boolean;
   error: string | null;
   onTitleChange: (newTitle: string) => void;
+  onSaveTitle: (newTitle: string) => void;
 }
 
 export const LeftPanel = ({
@@ -23,6 +24,7 @@ export const LeftPanel = ({
   isLoading,
   error,
   onTitleChange,
+  onSaveTitle,
 }: LeftPanelProps) => {
   return (
     <div className="h-full">
@@ -35,6 +37,7 @@ export const LeftPanel = ({
         isLoading={isLoading}
         error={error}
         onTitleChange={onTitleChange}
+        onSaveTitle={onSaveTitle}
       />
     </div>
   );

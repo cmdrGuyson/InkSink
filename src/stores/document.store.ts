@@ -65,6 +65,7 @@ class DocumentStore {
         this.selectedDocument = document;
         this.loadingSelectedDocument = false;
       });
+      return document;
     } catch (e: unknown) {
       runInAction(() => {
         this.error =

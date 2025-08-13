@@ -11,12 +11,14 @@ import { OpenDocumentsModal } from "./open-documents-modal";
 interface DocumentNameProps {
   initialName?: string;
   onNameChange?: (name: string) => void;
+  onSaveTitle?: (name: string) => void;
   className?: string;
 }
 
 export const DocumentName = ({
   initialName = "Untitled Document",
   onNameChange,
+  onSaveTitle,
   className,
 }: DocumentNameProps) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -46,21 +48,25 @@ export const DocumentName = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setDocumentName(e.target.value);
+    const newName = e.target.value;
+    setDocumentName(newName);
+    if (onNameChange) {
+      onNameChange(newName);
+    }
   };
 
   const handleInputBlur = () => {
     setIsEditing(false);
-    if (onNameChange) {
-      onNameChange(documentName);
+    if (onSaveTitle) {
+      onSaveTitle(documentName);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       setIsEditing(false);
-      if (onNameChange) {
-        onNameChange(documentName);
+      if (onSaveTitle) {
+        onSaveTitle(documentName);
       }
     } else if (e.key === "Escape") {
       setDocumentName(initialName);
