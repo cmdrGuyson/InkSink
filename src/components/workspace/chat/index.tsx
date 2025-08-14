@@ -154,12 +154,9 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const previousMessagesRef = useRef<Message[]>([]);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    // Scroll to bottom when recieving messages
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

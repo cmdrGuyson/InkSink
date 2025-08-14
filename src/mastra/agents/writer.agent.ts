@@ -1,5 +1,6 @@
 import { openai } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
+import DEFAULT_PROCESSORS from "../processors/common.processors";
 
 const SYSTEM_INSTRUCTIONS = `
 You are a versatile content writing assistant specializing in creating engaging, natural content across multiple platforms and formats.
@@ -46,6 +47,7 @@ const writerAgent = new Agent({
   name: "Writer Agent",
   instructions: getSystemInstructions(),
   model: openai("gpt-4o"),
+  // inputProcessors: DEFAULT_PROCESSORS,
 });
 
 export default writerAgent;
