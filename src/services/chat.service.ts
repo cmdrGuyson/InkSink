@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { Tables, TablesInsert, TablesUpdate } from "@/types/supabase";
 
-// Type definitions for better type safety
 export type Chat = Tables<"chat">;
 export type ChatInsert = TablesInsert<"chat">;
 export type ChatUpdate = TablesUpdate<"chat">;
@@ -17,7 +16,6 @@ export class ChatServiceError extends Error {
   }
 }
 
-// Create client once per file
 const supabase = createClient();
 
 export class ChatService {

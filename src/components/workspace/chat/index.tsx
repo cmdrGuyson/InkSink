@@ -24,9 +24,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import dayjs from "dayjs";
 import { toast } from "sonner";
-
-// Type for chat metadata (without messages)
-type ChatMetadata = Omit<ChatType, "messages">;
+import { PromptLibraryDialog } from "./prompt-library-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,10 +38,13 @@ interface ChatProps {
   editor?: TiptapEditor | null;
 }
 
+type ChatMetadata = Omit<ChatType, "messages">;
+
 export const Chat = observer(({ documentId, editor }: ChatProps) => {
   const { chatStore } = useStores();
   const params = useParams();
   const [recentChats, setRecentChats] = useState<ChatMetadata[]>([]);
+  const [isPromptLibraryOpen, setIsPromptLibraryOpen] = useState(false);
 
   // Get documentId from props or params
   const currentDocumentId = documentId || (params.documentId as string);
@@ -69,6 +70,14 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
       chatStore.clearCurrentChat();
     }
   }, [currentDocumentId, chatStore, loadRecentChats]);
+
+  const handleSelectPrompt = (content: string) => {
+    // Create a synthetic event to update the useChat input
+    const syntheticEvent = {
+      target: { value: content },
+    } as React.ChangeEvent<HTMLTextAreaElement>;
+    handleInputChange(syntheticEvent);
+  };
 
   const {
     messages,
@@ -355,7 +364,9 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
               onKeyPress={handleKeyPress}
               placeholder="Type your message..."
               className="border-0 p-0 h-auto min-h-[24px] focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent shadow-none"
-              rows={2}
+              autoResize
+              minRows={2}
+              maxRows={16}
               disabled={isLoading}
             />
           </div>
@@ -372,9 +383,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
                 variant="ghost"
                 size="sm"
                 className="h-7 px-2 text-xs"
-                onClick={() =>
-                  toast.info("This feature will be available soon")
-                }
+                onClick={() => setIsPromptLibraryOpen(true)}
               >
                 <Library className="h-3 w-3 mr-1" />
                 Prompt Library
@@ -405,6 +414,13 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
           </div>
         </form>
       </div>
+
+      {/* Prompt Library Dialog */}
+      <PromptLibraryDialog
+        isOpen={isPromptLibraryOpen}
+        onClose={() => setIsPromptLibraryOpen(false)}
+        onSelectPrompt={handleSelectPrompt}
+      />
     </div>
   );
 });

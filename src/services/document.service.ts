@@ -1,7 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
 import { Tables, TablesInsert, TablesUpdate } from "@/types/supabase";
 
-// Type definitions for better type safety
 export type Document = Tables<"document">;
 export type DocumentInsert = TablesInsert<"document">;
 export type DocumentUpdate = TablesUpdate<"document">;
@@ -12,13 +11,15 @@ export type PartialDocument = Pick<
 
 // Error types for better error handling
 export class DocumentServiceError extends Error {
-  constructor(message: string, public code?: string) {
+  constructor(
+    message: string,
+    public code?: string
+  ) {
     super(message);
     this.name = "DocumentServiceError";
   }
 }
 
-// Create client once per file
 const supabase = createClient();
 
 export class DocumentService {
