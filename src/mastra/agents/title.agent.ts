@@ -1,8 +1,6 @@
 import { openai } from "@ai-sdk/openai";
 import { Agent } from "@mastra/core/agent";
 
-import DEFAULT_PROCESSORS from "../processors/common.processors";
-
 const SYSTEM_INSTRUCTIONS = `
 You are a chat title generation specialist. Your job is to create concise, descriptive titles for chat conversations based on the first message.
 
@@ -30,7 +28,6 @@ const titleAgent = new Agent({
   name: "Title Agent",
   instructions: SYSTEM_INSTRUCTIONS,
   model: openai("gpt-4.1-nano"),
-  // inputProcessors: DEFAULT_PROCESSORS,
 });
 
 export default titleAgent;
