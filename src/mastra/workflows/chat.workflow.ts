@@ -44,11 +44,13 @@ const researchStep = createStep({
   outputSchema: z.object({
     result: z.string(),
   }),
-  execute: async ({ inputData }) => {
+  execute: async ({ inputData, writer }) => {
     const { messages } = inputData;
 
-    const { text } = await researchAgent.generate(messages);
-    return { result: text };
+    const stream = await researchAgent.streamVNext(messages);
+    await stream.pipeTo(writer);
+
+    return { result: await stream.text };
   },
 });
 
@@ -62,11 +64,13 @@ const writeStep = createStep({
   outputSchema: z.object({
     result: z.string(),
   }),
-  execute: async ({ inputData }) => {
+  execute: async ({ inputData, writer }) => {
     const { messages } = inputData;
 
-    const { text } = await writerAgent.generate(messages);
-    return { result: text };
+    const stream = await writerAgent.streamVNext(messages);
+    await stream.pipeTo(writer);
+
+    return { result: await stream.text };
   },
 });
 
@@ -80,11 +84,13 @@ const assistantStep = createStep({
   outputSchema: z.object({
     result: z.string(),
   }),
-  execute: async ({ inputData }) => {
+  execute: async ({ inputData, writer }) => {
     const { messages } = inputData;
 
-    const { text } = await assistantAgent.generate(messages);
-    return { result: text };
+    const stream = await assistantAgent.streamVNext(messages);
+    await stream.pipeTo(writer);
+
+    return { result: await stream.text };
   },
 });
 
