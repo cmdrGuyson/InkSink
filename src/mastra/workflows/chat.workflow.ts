@@ -3,6 +3,7 @@ import { z } from "zod";
 import orchestratorAgent from "../agents/orchestrator.agent";
 import researchAgent from "../agents/research.agent";
 import writerAgent from "../agents/writer.agent";
+import assistantAgent from "../agents/assistant.agent";
 
 const chatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -47,7 +48,7 @@ const researchStep = createStep({
     const { messages } = inputData;
 
     const { text } = await researchAgent.generate(messages);
-    return { result: text || "Research completed" };
+    return { result: text };
   },
 });
 
@@ -65,13 +66,13 @@ const writeStep = createStep({
     const { messages } = inputData;
 
     const { text } = await writerAgent.generate(messages);
-    return { result: text || "Writing completed" };
+    return { result: text };
   },
 });
 
-const clarificationStep = createStep({
-  id: "clarification",
-  description: "Returns clarifying questions from the orchestrator",
+const assistantStep = createStep({
+  id: "assistant",
+  description: "Handles general questions and chat using the assistant agent",
   inputSchema: z.object({
     messages: z.array(chatMessageSchema),
     route: z.string(),
@@ -80,8 +81,10 @@ const clarificationStep = createStep({
     result: z.string(),
   }),
   execute: async ({ inputData }) => {
-    const { route } = inputData;
-    return { result: route };
+    const { messages } = inputData;
+
+    const { text } = await assistantAgent.generate(messages);
+    return { result: text };
   },
 });
 
@@ -98,13 +101,10 @@ const chatWorkflow = createWorkflow({
   .then(orchestrateStep)
   .branch([
     [async ({ inputData }) => inputData.route === "research", researchStep],
-    [async ({ inputData }) => inputData.route === "writer", writeStep],
+    [async ({ inputData }) => inputData.route === "write", writeStep],
     [
-      async ({ inputData }) => {
-        const route = inputData.route;
-        return route !== "research" && route !== "writer";
-      },
-      clarificationStep,
+      async ({ inputData }) => !["research", "write"].includes(inputData.route),
+      assistantStep,
     ],
   ])
   .commit();

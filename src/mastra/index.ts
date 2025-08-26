@@ -4,11 +4,12 @@ import { LibSQLStore } from "@mastra/libsql";
 import writerAgent from "./agents/writer.agent";
 import titleAgent from "./agents/title.agent";
 import researchAgent from "./agents/research.agent";
+import assistantAgent from "./agents/assistant.agent";
 import chatWorkflow from "./workflows/chat.workflow";
 
 export const mastra = new Mastra({
   workflows: { chatWorkflow },
-  agents: { writerAgent, titleAgent, researchAgent },
+  agents: { writerAgent, titleAgent, researchAgent, assistantAgent },
   storage: new LibSQLStore({
     url: ":memory:",
   }),
