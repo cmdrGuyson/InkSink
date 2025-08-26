@@ -11,14 +11,11 @@ import {
   Palette,
   Trash2,
 } from "lucide-react";
-import { useChat } from "@ai-sdk/react";
+import { useChatStream, type ChatMessage } from "@/hooks/use-chat-stream";
 import { observer } from "mobx-react-lite";
 import { useStores } from "@/providers/store.provider";
 import { useParams } from "next/navigation";
-import { Message } from "ai";
-import { Json } from "@/types/supabase";
 import type { Chat as ChatType } from "@/services/chat.service";
-import { ChatService } from "@/services/chat.service";
 import type { Editor as TiptapEditor } from "@tiptap/react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -32,6 +29,9 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { fromJson } from "@/lib/utils";
+import { ChatService } from "@/services/chat.service";
+import type { Json } from "@/types/supabase";
 
 interface ChatProps {
   documentId?: string;
@@ -72,96 +72,74 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
   }, [currentDocumentId, chatStore, loadRecentChats]);
 
   const handleSelectPrompt = (content: string) => {
-    // Create a synthetic event to update the useChat input
-    const syntheticEvent = {
-      target: { value: content },
-    } as React.ChangeEvent<HTMLTextAreaElement>;
-    handleInputChange(syntheticEvent);
+    setInput(content);
+  };
+
+  const onFinishStreaming = async (
+    finalMessages: {
+      role: "user" | "assistant";
+      content: string;
+      createdAt: Date;
+    }[]
+  ) => {
+    if (!currentDocumentId || finalMessages.length === 0) return;
+
+    try {
+      const persistedMessages = finalMessages.map((m) => ({
+        role: m.role,
+        content: m.content,
+        createdAt: m.createdAt.toISOString(),
+      })) as unknown as Json;
+
+      if (chatStore.hasCurrentChat) {
+        await chatStore.updateChat(chatStore.currentChat!.id, {
+          messages: persistedMessages,
+        });
+      } else {
+        const firstUserMessage = finalMessages.find(
+          (msg) => msg.role === "user"
+        );
+        let chatTitle = "New Chat";
+
+        if (firstUserMessage?.content) {
+          try {
+            chatTitle = await ChatService.generateTitle(
+              firstUserMessage.content
+            );
+          } catch (error) {
+            console.error("Failed to generate chat title:", error);
+          }
+        }
+
+        await chatStore.createChat({
+          document_id: currentDocumentId,
+          messages: persistedMessages,
+          title: chatTitle,
+        });
+
+        await loadRecentChats();
+      }
+    } catch (error) {
+      console.error("Failed to save messages:", error);
+    }
   };
 
   const {
     messages,
-    input,
-    handleInputChange,
-    handleSubmit,
     isLoading,
+    error: streamError,
+    onSendMessage,
     setMessages,
-  } = useChat({
-    api: "/api/chat",
-    initialMessages: chatStore.currentMessages as unknown as Message[],
-    body: {
-      content: editor?.getText().trim() || "",
-      style: "", // TODO: Implement writing style
-    },
+    resetChat,
+    stopStreaming,
+  } = useChatStream({
+    initialMessages: fromJson(chatStore.currentMessages),
+    onFinishStreaming,
   });
 
-  // Save messages when streaming is complete or user sends a message
-  useEffect(() => {
-    const saveMessages = async () => {
-      if (!currentDocumentId || messages.length === 0) return;
-
-      console.log("Running save messages");
-
-      try {
-        if (chatStore.hasCurrentChat) {
-          await chatStore.updateChat(chatStore.currentChat!.id, {
-            messages: messages as unknown as Json,
-          });
-        } else {
-          // Create new chat with all messages only when first message is sent
-          // Generate title from the first user message
-          const firstUserMessage = messages.find((msg) => msg.role === "user");
-          let chatTitle = "New Chat";
-
-          if (firstUserMessage?.content) {
-            try {
-              chatTitle = await ChatService.generateTitle(
-                firstUserMessage.content
-              );
-            } catch (error) {
-              console.error("Failed to generate chat title:", error);
-              // Fall back to "New Chat" if title generation fails
-            }
-          }
-
-          await chatStore.createChat({
-            document_id: currentDocumentId,
-            messages: messages as unknown as Json,
-            title: chatTitle,
-          });
-          // Reload recent chats after creating a new one
-          await loadRecentChats();
-        }
-      } catch (error) {
-        console.error("Failed to save messages:", error);
-      }
-    };
-
-    // Check if messages have actually changed by comparing with previous ref
-    const messagesChanged =
-      messages.length !== previousMessagesRef.current.length ||
-      messages.some((msg, index) => {
-        const prevMsg = previousMessagesRef.current[index];
-        return (
-          !prevMsg || msg.id !== prevMsg.id || msg.content !== prevMsg.content
-        );
-      });
-
-    // Only save when:
-    // 1. Messages have changed
-    // 2. Not currently streaming (isLoading is false)
-    // 3. There are messages to save
-    if (messages.length > 0 && messagesChanged && !isLoading) {
-      saveMessages();
-      // Update the ref with current messages after saving
-      previousMessagesRef.current = [...messages];
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messages, currentDocumentId, chatStore, isLoading]);
+  const [input, setInput] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const previousMessagesRef = useRef<Message[]>([]);
 
   useEffect(() => {
     // Scroll to bottom when recieving messages
@@ -171,8 +149,10 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-
-      handleSubmit();
+      if (input.trim()) {
+        onSendMessage(input);
+        setInput("");
+      }
     }
   };
 
@@ -183,7 +163,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
   const handleNewChat = () => {
     // Clear current chat to start fresh
     chatStore.clearCurrentChat();
-    // Clear messages in the useChat hook
+    // Clear messages in the chat stream hook
     setMessages([]);
   };
 
@@ -192,8 +172,8 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
       // Load the full chat data (including messages) by ID
       const selectedChat = await chatStore.loadChatById(chatId);
       if (selectedChat) {
-        // Update the useChat hook with the selected chat's messages
-        setMessages(selectedChat.messages as unknown as Message[]);
+        // Update the workflow stream hook with the selected chat's messages
+        setMessages(fromJson(selectedChat.messages));
       }
     } catch (error) {
       console.error("Failed to select chat:", error);
@@ -292,14 +272,16 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
             <p className="text-muted-foreground text-sm">Loading chat...</p>
           </div>
         )}
-        {chatStore.error && (
+        {(chatStore.error || streamError) && (
           <div className="flex justify-center">
-            <p className="text-destructive text-sm">Error: {chatStore.error}</p>
+            <p className="text-destructive text-sm">
+              Error: {chatStore.error || streamError}
+            </p>
           </div>
         )}
-        {messages.map((message) => (
+        {messages.map((message, idx) => (
           <div
-            key={message.id}
+            key={idx}
             className={`flex ${
               message.role === "user" ? "justify-end" : "justify-start"
             }`}
@@ -342,7 +324,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
                     : "text-muted-foreground"
                 }`}
               >
-                {formatDateTime(message.createdAt || new Date().toISOString())}
+                {formatDateTime(message.createdAt)}
               </p>
             </div>
           </div>
@@ -353,14 +335,20 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
       {/* Floating Input at Bottom */}
       <div className="p-4 bg-background">
         <form
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (input.trim()) {
+              onSendMessage(input);
+              setInput("");
+            }
+          }}
           className="relative border rounded-lg p-3 bg-background"
         >
           {/* Text Input Area */}
           <div className="mb-3">
             <Textarea
               value={input}
-              onChange={handleInputChange}
+              onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Type your message..."
               className="border-0 p-0 h-auto min-h-[24px] focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent shadow-none"
