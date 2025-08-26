@@ -7,7 +7,7 @@ export type ChatRole = "user" | "assistant";
 export interface ChatMessage {
   role: ChatRole;
   content: string;
-  createdAt: Date;
+  createdAt: string;
 }
 
 interface UseChatStreamOptions {
@@ -19,6 +19,7 @@ interface UseChatStreamOptions {
 interface UseChatStreamApi {
   messages: ChatMessage[];
   isLoading: boolean;
+  isThinking: boolean;
   error?: string;
   onSendMessage: (message: string) => Promise<void>;
   stopStreaming: () => void;
@@ -162,9 +163,11 @@ export function useChatStream(
     options.initialMessages ?? []
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const abortRef = useRef<AbortController | null>(null);
   const messagesRef = useRef<ChatMessage[]>(messages);
+  const hasStartedRef = useRef<boolean>(false);
 
   useEffect(() => {
     messagesRef.current = messages;
@@ -199,18 +202,13 @@ export function useChatStream(
       const userMessage: ChatMessage = {
         role: "user",
         content: message,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
-
-      // optimistic append user & placeholder assistant
-      const pendingAssistant: ChatMessage = {
-        role: "assistant",
-        content: "",
-        createdAt: new Date(),
-      };
-
-      setMessages((prev) => [...prev, userMessage, pendingAssistant]);
+      // Append only user; assistant will appear on first token
+      setMessages((prev) => [...prev, userMessage]);
       setIsLoading(true);
+      setIsThinking(true);
+      hasStartedRef.current = false;
 
       const controller = new AbortController();
       abortRef.current = controller;
@@ -249,6 +247,10 @@ export function useChatStream(
                 const evt: WorkflowStreamEvent = parsed;
                 const delta = extractDeltaFromChunk(evt);
                 if (delta) {
+                  if (!hasStartedRef.current) {
+                    hasStartedRef.current = true;
+                    setIsThinking(false);
+                  }
                   setMessages((prev) => {
                     const updated = [...prev];
                     const lastIndex = updated.length - 1;
@@ -260,6 +262,12 @@ export function useChatStream(
                         ...updated[lastIndex],
                         content: updated[lastIndex].content + delta,
                       };
+                    } else {
+                      updated.push({
+                        role: "assistant",
+                        content: delta,
+                        createdAt: new Date().toISOString(),
+                      });
                     }
                     return updated;
                   });
@@ -274,6 +282,10 @@ export function useChatStream(
                   ).result;
                   const final = r?.text ?? r?.result;
                   if (typeof final === "string" && final.length > 0) {
+                    if (!hasStartedRef.current) {
+                      hasStartedRef.current = true;
+                      setIsThinking(false);
+                    }
                     setMessages((prev) => {
                       const updated = [...prev];
                       const lastIndex = updated.length - 1;
@@ -285,6 +297,12 @@ export function useChatStream(
                           ...updated[lastIndex],
                           content: final,
                         };
+                      } else {
+                        updated.push({
+                          role: "assistant",
+                          content: final,
+                          createdAt: new Date().toISOString(),
+                        });
                       }
                       return updated;
                     });
@@ -304,6 +322,10 @@ export function useChatStream(
               const finalText =
                 resultAny.result?.text ?? resultAny.result?.result ?? "";
               if (finalText) {
+                if (!hasStartedRef.current) {
+                  hasStartedRef.current = true;
+                  setIsThinking(false);
+                }
                 setMessages((prev) => {
                   const updated = [...prev];
                   const lastIndex = updated.length - 1;
@@ -315,6 +337,12 @@ export function useChatStream(
                       ...updated[lastIndex],
                       content: finalText,
                     };
+                  } else {
+                    updated.push({
+                      role: "assistant",
+                      content: finalText,
+                      createdAt: new Date().toISOString(),
+                    });
                   }
                   return updated;
                 });
@@ -380,6 +408,7 @@ export function useChatStream(
         setError(message);
       } finally {
         setIsLoading(false);
+        setIsThinking(false);
         abortRef.current = null;
         if (onFinishStreaming) onFinishStreaming(messagesRef.current);
       }
@@ -391,13 +420,22 @@ export function useChatStream(
     () => ({
       messages,
       isLoading,
+      isThinking,
       error,
       onSendMessage,
       stopStreaming,
       resetChat,
       setMessages,
     }),
-    [messages, isLoading, error, onSendMessage, stopStreaming, resetChat]
+    [
+      messages,
+      isLoading,
+      isThinking,
+      error,
+      onSendMessage,
+      stopStreaming,
+      resetChat,
+    ]
   );
 
   return api;

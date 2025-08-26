@@ -10,8 +10,9 @@ import {
   Library,
   Palette,
   Trash2,
+  Loader2,
 } from "lucide-react";
-import { useChatStream, type ChatMessage } from "@/hooks/use-chat-stream";
+import { ChatMessage, useChatStream } from "@/hooks/use-chat-stream";
 import { observer } from "mobx-react-lite";
 import { useStores } from "@/providers/store.provider";
 import { useParams } from "next/navigation";
@@ -75,20 +76,14 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
     setInput(content);
   };
 
-  const onFinishStreaming = async (
-    finalMessages: {
-      role: "user" | "assistant";
-      content: string;
-      createdAt: Date;
-    }[]
-  ) => {
+  const onFinishStreaming = async (finalMessages: ChatMessage[]) => {
     if (!currentDocumentId || finalMessages.length === 0) return;
 
     try {
       const persistedMessages = finalMessages.map((m) => ({
         role: m.role,
         content: m.content,
-        createdAt: m.createdAt.toISOString(),
+        createdAt: m.createdAt,
       })) as unknown as Json;
 
       if (chatStore.hasCurrentChat) {
@@ -130,8 +125,9 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
     error: streamError,
     onSendMessage,
     setMessages,
-    resetChat,
-    stopStreaming,
+    // resetChat,
+    // stopStreaming,
+    isThinking,
   } = useChatStream({
     initialMessages: fromJson(chatStore.currentMessages),
     onFinishStreaming,
@@ -297,24 +293,32 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               ) : (
                 <div className="chat-markdown">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      // Customize links to open in new tab
-                      a: ({ children, href, ...props }) => (
-                        <a
-                          href={href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          {...props}
-                        >
-                          {children}
-                        </a>
-                      ),
-                    }}
-                  >
-                    {message.content}
-                  </ReactMarkdown>
+                  {isThinking &&
+                  idx === messages.length - 1 &&
+                  message.content === "" ? (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      <span>InkSink is thinking...</span>
+                    </div>
+                  ) : (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        a: ({ children, href, ...props }) => (
+                          <a
+                            href={href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            {...props}
+                          >
+                            {children}
+                          </a>
+                        ),
+                      }}
+                    >
+                      {message.content}
+                    </ReactMarkdown>
+                  )}
                 </div>
               )}
               <p
@@ -329,6 +333,21 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
             </div>
           </div>
         ))}
+        {isThinking &&
+          messages.length > 0 &&
+          messages[messages.length - 1]?.role === "user" && (
+            <div className="flex justify-start">
+              <div className="max-w-[80%] rounded-lg px-4 py-2 bg-muted text-foreground">
+                <div className="flex items-center gap-2 text-sm">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  <span>InkSink is thinking...</span>
+                </div>
+                <p className="text-xs mt-1 text-muted-foreground">
+                  {formatDateTime(new Date())}
+                </p>
+              </div>
+            </div>
+          )}
         <div ref={messagesEndRef} />
       </div>
 
