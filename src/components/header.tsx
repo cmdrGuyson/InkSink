@@ -12,10 +12,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import CreditsIndicator from "@/components/credits";
+
 import { useAuth } from "@/providers/auth.provider";
 
 export const Header = () => {
-  const { signOut } = useAuth();
+  const { signOut, profile } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -43,32 +45,41 @@ export const Header = () => {
           InkSink
         </Link>
       </div>
-      <div className="flex items-center gap-3">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="p-2 hover:bg-accent rounded-md transition-colors"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            <DropdownMenuItem onClick={handlePreferences} className="text-xs">
-              <SettingsIcon className="h-3 w-3 mr-2" />
-              Preferences
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleLogout}
-              variant="destructive"
-              className="text-xs"
-            >
-              <LogOut className="h-3 w-3 mr-2" />
-              Logout
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="flex gap-4">
+        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="p-2 hover:bg-accent rounded-md transition-colors"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={handlePreferences} className="text-xs">
+                <SettingsIcon className="h-3 w-3 mr-2" />
+                Preferences
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                variant="destructive"
+                className="text-xs"
+              >
+                <LogOut className="h-3 w-3 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        {profile ? (
+          <CreditsIndicator
+            used={50 - profile?.credit_count}
+            limit={50}
+            tier="free"
+          />
+        ) : null}
       </div>
     </header>
   );

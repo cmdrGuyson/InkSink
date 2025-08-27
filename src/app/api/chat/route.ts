@@ -1,10 +1,41 @@
 import { NextRequest } from "next/server";
 import { mastra } from "@/mastra";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { CreditService } from "@/backend-services/credit.service";
 
 export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
+    // Get the current user
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
+    // Check if user has enough credits
+    const credits = await CreditService.getCredits(user.id);
+    if (credits < 1) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "Insufficient credits. Please purchase more credits to continue.",
+        }),
+        {
+          status: 402,
+          headers: { "content-type": "application/json" },
+        }
+      );
+    }
+
     const body = await req.json();
     const { messages } = body ?? {};
 
@@ -46,6 +77,13 @@ export async function POST(req: NextRequest) {
               `event: result\n` + `data: ${JSON.stringify(result)}\n\n`
             )
           );
+
+          // Deduct a credit after execution
+          try {
+            await CreditService.deductCredit(user.id, credits);
+          } catch (creditError) {
+            console.error("Failed to deduct credit:", creditError);
+          }
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : "stream error";
           controller.enqueue(

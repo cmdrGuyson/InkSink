@@ -104,6 +104,33 @@ export type Database = {
         }
         Relationships: []
       }
+      profile: {
+        Row: {
+          created_at: string
+          credit_count: number
+          credit_reset_at: string
+          id: string
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          credit_count?: number
+          credit_reset_at?: string
+          id?: string
+          tier?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          credit_count?: number
+          credit_reset_at?: string
+          id?: string
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_prompt: {
         Row: {
           content: string
@@ -111,7 +138,7 @@ export type Database = {
           description: string
           id: string
           title: string
-          updated_at: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
@@ -120,7 +147,7 @@ export type Database = {
           description?: string
           id?: string
           title?: string
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Update: {
@@ -129,7 +156,7 @@ export type Database = {
           description?: string
           id?: string
           title?: string
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

@@ -33,6 +33,12 @@ import {
 import { fromJson } from "@/lib/utils";
 import { ChatService } from "@/services/chat.service";
 import type { Json } from "@/types/supabase";
+import { useAuth } from "@/providers/auth.provider";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ChatProps {
   documentId?: string;
@@ -43,7 +49,9 @@ type ChatMetadata = Omit<ChatType, "messages">;
 
 export const Chat = observer(({ documentId, editor }: ChatProps) => {
   const { chatStore } = useStores();
+  const { spendCredit, profile } = useAuth();
   const params = useParams();
+
   const [recentChats, setRecentChats] = useState<ChatMetadata[]>([]);
   const [isPromptLibraryOpen, setIsPromptLibraryOpen] = useState(false);
 
@@ -114,6 +122,9 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
 
         await loadRecentChats();
       }
+
+      // Spend a credit
+      spendCredit();
     } catch (error) {
       console.error("Failed to save messages:", error);
     }
@@ -145,7 +156,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      if (input.trim()) {
+      if (input.trim() && (profile?.credit_count ?? 0) >= 1) {
         onSendMessage(input);
         setInput("");
       }
@@ -356,7 +367,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (input.trim()) {
+            if (input.trim() && (profile?.credit_count ?? 0) >= 1) {
               onSendMessage(input);
               setInput("");
             }
@@ -410,14 +421,32 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
             </div>
 
             {/* Send Button */}
-            <Button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              size="icon"
-              className="h-8 w-8 rounded-full"
-            >
-              <SendHorizonal className="h-4 w-4" />
-            </Button>
+            {/* Send Button */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="inline-block">
+                  <Button
+                    type="submit"
+                    disabled={
+                      !input.trim() ||
+                      isLoading ||
+                      (profile?.credit_count ?? 0) < 1
+                    }
+                    size="icon"
+                    className="h-8 w-8 rounded-full"
+                  >
+                    <SendHorizonal className="h-4 w-4" />
+                  </Button>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                {(profile?.credit_count ?? 0) < 1 ? (
+                  <p>You do not have any remaining credits</p>
+                ) : (
+                  <p>Send message</p>
+                )}
+              </TooltipContent>
+            </Tooltip>
           </div>
         </form>
       </div>

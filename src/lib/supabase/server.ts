@@ -1,4 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
+import { createClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { Database } from "@/types/supabase";
 
@@ -26,5 +27,12 @@ export async function createServerSupabaseClient() {
         },
       },
     }
+  );
+}
+
+export function createAdminSupabaseClient() {
+  return createClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SECRET_KEY!
   );
 }
