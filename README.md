@@ -15,19 +15,47 @@ InkSink is a kitchen sink for writing content. An AI assistant that gives you lo
    ```
 
 2. Set up environment variables
+
+   ```bash
+   cp .env.example .env
+   ```
+
 3. Run the development server:
 
    ```bash
    yarn dev
    ```
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser
+4. For the mastra development server:
 
-## Tech Stack
+   ```bash
+   yarn mastra
+   ```
 
-- Next.js 14
-- TypeScript
-- Tailwind CSS
-- TipTap Editor
-- Supabase
-- Mastra
+## AI Assistant Workflow
+
+```mermaid
+---
+config:
+  theme: redux
+  layout: dagre
+---
+flowchart TD
+    n1["Moderation Agent"] --> n2["Orchestration Agent"]
+    n2 --> n3["Research Agent"] & n4["Writer Agent"] & n5["Assistant Agent"]
+    n5 --> n6["Previous Content + Style Preferences"]
+    n4 --> n6
+    n3 --> n8["Search Tool"]
+    n1@{ shape: rect}
+    n6@{ shape: cyl}
+    style n1 stroke-width:1px,stroke-dasharray: 1
+    style n6 stroke-width:2px,stroke-dasharray: 2
+    style n8 stroke-width:1px,stroke-dasharray: 1
+    linkStyle 0 stroke:#757575,fill:none
+    linkStyle 1 stroke:#757575,fill:none
+    linkStyle 2 stroke:#757575,fill:none
+    linkStyle 3 stroke:#757575,fill:none
+    linkStyle 4 stroke:#757575,fill:none
+    linkStyle 5 stroke:#757575,fill:none
+    linkStyle 6 stroke:#757575
+```
