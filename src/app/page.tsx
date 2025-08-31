@@ -22,7 +22,13 @@ export default function Home() {
 
         <div className="flex gap-4 items-center flex-col sm:flex-row mt-12">
           <Link
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-small text-sm h-10 sm:h-12 px-4 sm:px-5 sm:w-auto font-mono"
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-small text-sm h-10 sm:h-12 px-4 sm:px-5 w-54 font-mono"
+            href="/waitlist"
+          >
+            Request Access
+          </Link>
+          <Link
+            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-small text-sm h-10 sm:h-12 px-4 sm:px-5 w-54 font-mono"
             href="/desk/write"
           >
             Get Started

@@ -54,16 +54,12 @@ export class CreditService {
   ): Promise<boolean> {
     const supabase = createAdminSupabaseClient();
 
-    console.log("deducting", userId, creditCount);
-
     // Deduct one credit
     const { error } = await supabase
       .from("profile")
       .update({ credit_count: creditCount - 1 })
       .eq("id", userId)
       .select();
-
-    console.log(error);
 
     if (error) {
       throw new CreditServiceError(
