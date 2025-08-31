@@ -21,6 +21,7 @@ import {
 
 export default function WaitlistPage() {
   const router = useRouter();
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -57,6 +58,7 @@ export default function WaitlistPage() {
       };
 
       await WaitlistService.addWaitlistEntry(waitlistData);
+
       setIsSubmitted(true);
     } catch (error) {
       if (error instanceof WaitlistServiceError) {
