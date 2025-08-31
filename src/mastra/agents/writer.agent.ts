@@ -46,27 +46,9 @@ You must apply specific rules for each target platform. Here are some examples:
 - Suggest 3-5 professional, relevant hashtags.
 `;
 
-interface WriterAgentInputs {
-  content?: string;
-  style?: string;
-}
-
-export const getSystemInstructions = (inputs?: WriterAgentInputs) => {
-  const { content, style } = inputs || {};
-
-  const _instructions = `${SYSTEM_INSTRUCTIONS}
-  
-${content ? `The content already written:\n${content}` : ""}
-
-${style ? `The writing style of the user:\n${style}` : ""}
-  `;
-
-  return _instructions;
-};
-
 const writerAgent = new Agent({
   name: "Writer Agent",
-  instructions: getSystemInstructions(),
+  instructions: SYSTEM_INSTRUCTIONS,
   model: openai("gpt-4o"),
 });
 

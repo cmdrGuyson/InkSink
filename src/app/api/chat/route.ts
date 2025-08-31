@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { messages } = body ?? {};
+    const { messages, content } = body ?? {};
 
     if (!Array.isArray(messages)) {
       return new Response(
@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
 
     const workflow = mastra.getWorkflow("chatWorkflow");
     const run = await workflow.createRunAsync();
-    const stream = await run.streamVNext({ inputData: { messages } });
+    const stream = await run.streamVNext({ inputData: { messages, content } });
 
     const sseStream = new ReadableStream({
       async start(controller) {

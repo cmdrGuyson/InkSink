@@ -12,6 +12,7 @@ export interface ChatMessage {
 }
 
 interface UseChatStreamOptions {
+  content?: string;
   endpoint?: string;
   initialMessages?: ChatMessage[];
   onFinishStreaming?: (finalMessages: ChatMessage[]) => void;
@@ -219,7 +220,10 @@ export function useChatStream(
         const response = await fetch(endpoint, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: buildMessagesPayload(current) }),
+          body: JSON.stringify({
+            messages: buildMessagesPayload(current),
+            content: options.content,
+          }),
           signal: controller.signal,
         });
 
@@ -415,7 +419,14 @@ export function useChatStream(
         if (onFinishStreaming) onFinishStreaming(messagesRef.current);
       }
     },
-    [buildMessagesPayload, endpoint, isLoading, messages, onFinishStreaming]
+    [
+      buildMessagesPayload,
+      endpoint,
+      isLoading,
+      messages,
+      onFinishStreaming,
+      options.content,
+    ]
   );
 
   const api = useMemo<UseChatStreamApi>(

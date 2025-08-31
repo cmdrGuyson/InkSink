@@ -70,16 +70,6 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
     }
   }, [currentDocumentId, chatStore]);
 
-  // Load the most recent chat when component mounts or documentId changes
-  useEffect(() => {
-    if (currentDocumentId) {
-      chatStore.loadMostRecentChat(currentDocumentId);
-      loadRecentChats();
-    } else {
-      chatStore.clearCurrentChat();
-    }
-  }, [currentDocumentId, chatStore, loadRecentChats]);
-
   const handleSelectPrompt = (content: string) => {
     setInput(content);
   };
@@ -136,13 +126,33 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
     error: streamError,
     onSendMessage,
     setMessages,
+
     // resetChat,
     // stopStreaming,
     isThinking,
   } = useChatStream({
     initialMessages: fromJson(chatStore.currentMessages),
     onFinishStreaming,
+    content: editor?.getText(),
   });
+
+  // Load the most recent chat when component mounts or documentId changes
+  useEffect(() => {
+    const loadChat = async () => {
+      if (currentDocumentId) {
+        const mostRecentChat =
+          await chatStore.loadMostRecentChat(currentDocumentId);
+        if (mostRecentChat) {
+          setMessages(fromJson(mostRecentChat.messages));
+        }
+        await loadRecentChats();
+      } else {
+        chatStore.clearCurrentChat();
+      }
+    };
+
+    loadChat();
+  }, [currentDocumentId, chatStore, loadRecentChats, setMessages]);
 
   const [input, setInput] = useState("");
 
