@@ -17,4 +17,8 @@ export const mastra = new Mastra({
     name: "Mastra",
     level: "info",
   }),
+  telemetry: {
+    serviceName: "inksink",
+    enabled: true,
+  },
 });
