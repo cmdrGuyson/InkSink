@@ -12,6 +12,7 @@ import {
   Trash2,
   Loader2,
 } from "lucide-react";
+import { CopyIcon } from "@radix-ui/react-icons";
 import { ChatMessage, useChatStream } from "@/hooks/use-chat-stream";
 import { observer } from "mobx-react-lite";
 import { useStores } from "@/providers/store.provider";
@@ -54,6 +55,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
 
   const [recentChats, setRecentChats] = useState<ChatMetadata[]>([]);
   const [isPromptLibraryOpen, setIsPromptLibraryOpen] = useState(false);
+  const [copiedMessageId, setCopiedMessageId] = useState<number | null>(null);
 
   // Get documentId from props or params
   const currentDocumentId = documentId || (params.documentId as string);
@@ -72,6 +74,16 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
 
   const handleSelectPrompt = (content: string) => {
     setInput(content);
+  };
+
+  const handleCopyMessage = async (content: string, messageId: number) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      setCopiedMessageId(messageId);
+      setTimeout(() => setCopiedMessageId(null), 2000);
+    } catch (error) {
+      console.error("Failed to copy message:", error);
+    }
   };
 
   const onFinishStreaming = async (finalMessages: ChatMessage[]) => {
@@ -304,7 +316,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
             }`}
           >
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-2 ${
+              className={`max-w-[80%] rounded-lg px-4 py-2 group ${
                 message.role === "user"
                   ? "bg-primary text-primary-foreground"
                   : "bg-muted text-foreground"
@@ -322,35 +334,60 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
                       <span>InkSink is thinking...</span>
                     </div>
                   ) : (
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      components={{
-                        a: ({ children, href, ...props }) => (
-                          <a
-                            href={href}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            {...props}
-                          >
-                            {children}
-                          </a>
-                        ),
-                      }}
-                    >
-                      {message.content}
-                    </ReactMarkdown>
+                    <>
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          a: ({ children, href, ...props }) => (
+                            <a
+                              href={href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              {...props}
+                            >
+                              {children}
+                            </a>
+                          ),
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    </>
                   )}
                 </div>
               )}
-              <p
-                className={`text-xs mt-1 ${
-                  message.role === "user"
-                    ? "text-primary-foreground/70"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {formatDateTime(message.createdAt)}
-              </p>
+              <div className="flex items-center justify-between mt-1">
+                <p
+                  className={`text-xs ${
+                    message.role === "user"
+                      ? "text-primary-foreground/70"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {formatDateTime(message.createdAt)}
+                </p>
+                {message.role !== "user" && (
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Tooltip delayDuration={0} open={copiedMessageId === idx}>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                          onClick={() =>
+                            handleCopyMessage(message.content, idx)
+                          }
+                        >
+                          <CopyIcon className="h-3 w-3" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {copiedMessageId === idx ? "Copied!" : "Copy"}
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ))}
