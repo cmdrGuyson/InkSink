@@ -77,7 +77,7 @@ export const Header = () => {
           <CreditsIndicator
             used={50 - profile?.credit_count}
             limit={50}
-            tier="free"
+            tier={profile?.tier as "free" | "premium"}
           />
         ) : null}
       </div>

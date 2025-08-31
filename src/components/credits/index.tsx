@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   Tooltip,
@@ -28,6 +29,8 @@ export function CreditsIndicator({
   tier = "free",
   className,
 }: CreditsIndicatorProps) {
+  const router = useRouter();
+
   const percentUsed = React.useMemo(() => {
     if (!Number.isFinite(limit) || limit <= 0) return 0;
     return clamp01(used / limit);
@@ -35,12 +38,17 @@ export function CreditsIndicator({
 
   const percentRemaining = 1 - percentUsed;
 
+  const handleClick = () => {
+    router.push("/desk/preferences?section=usage");
+  };
+
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <div
+          onClick={handleClick}
           className={cn(
-            "flex cursor-pointer select-none flex-col items-center self-center gap-1 rounded-lg border border-solid px-2 py-2",
+            "flex cursor-pointer select-none flex-col items-center self-center gap-1 rounded-lg border border-solid px-2 py-2 hover:bg-accent transition-colors",
             tier === "premium"
               ? "border-green-500 bg-green-50 dark:bg-green-950/20"
               : "border-border",
@@ -72,6 +80,9 @@ export function CreditsIndicator({
           {tier === "free"
             ? `${limit - used} out of ${limit} credits remaining`
             : "Manage subscription"}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Click to view detailed usage
         </p>
       </TooltipContent>
     </Tooltip>
