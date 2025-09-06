@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { useLogger } from "@/hooks/use-logger";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
+  const { logError } = useLogger();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +41,10 @@ export default function LoginPage() {
         router.refresh();
       }
     } catch (error) {
-      console.error("Login failed:", error);
+      logError("Login failed", error, {
+        email,
+        action: "user_login",
+      });
       setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);

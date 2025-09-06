@@ -1,8 +1,10 @@
 import { mastra } from "../../../mastra";
 
 export async function POST(req: Request) {
+  let message: string | undefined;
   try {
-    const { message } = await req.json();
+    const body = await req.json();
+    message = body.message;
 
     if (!message || typeof message !== "string") {
       return new Response(
@@ -44,7 +46,10 @@ export async function POST(req: Request) {
       headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Error generating chat title:", error);
+    console.error("Error generating chat title", error, {
+      message: message?.substring(0, 100), // Log first 100 chars for context
+      action: "generate_chat_title",
+    });
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

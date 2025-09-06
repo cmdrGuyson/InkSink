@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { useAuth } from "@/providers/auth.provider";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useLogger } from "@/hooks/use-logger";
 import AppPreferences from "./app-preferences";
 import AccountPreferences from "./account-preferences";
 import Usage from "./usage-preferences";
@@ -19,6 +20,7 @@ type SettingsSection = "app" | "account" | "usage";
 // Separate component that uses useSearchParams
 const SettingsContent = observer(() => {
   const { user } = useAuth();
+  const { logError } = useLogger();
   const supabase = createClient();
   const router = useRouter();
   const pathname = usePathname();
@@ -102,7 +104,10 @@ const SettingsContent = observer(() => {
       setConfirmPassword("");
       toast.success("Password updated successfully!");
     } catch (error) {
-      console.error("Password reset error:", error);
+      logError("Password reset error", error, {
+        email: user?.email,
+        action: "password_reset",
+      });
       setPasswordError("An unexpected error occurred. Please try again.");
     } finally {
       setIsResettingPassword(false);
