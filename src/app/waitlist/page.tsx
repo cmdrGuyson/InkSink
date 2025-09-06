@@ -18,6 +18,7 @@ import {
   WaitlistService,
   WaitlistServiceError,
 } from "@/services/waitlist.service";
+import Link from "next/link";
 
 export default function WaitlistPage() {
   const router = useRouter();
@@ -119,7 +120,9 @@ export default function WaitlistPage() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold font-mono">InkSink</h1>
+          <Link href={"/"}>
+            <h1 className="text-4xl font-bold font-mono">InkSink</h1>
+          </Link>
           <h2 className="text-2xl font-bold text-gray-500 mb-4">
             Request Access
           </h2>
@@ -235,9 +238,16 @@ export default function WaitlistPage() {
                 {isSubmitting ? "Submitting Request..." : "Request Access"}
               </Button>
 
-              <p className="text-sm text-gray-500 text-center">
-                We&apos;ll review your application and get back to you soon :)
-              </p>
+              <div>
+                <p className="text-sm text-gray-500 text-center">
+                  We&apos;ll review your application and get back to you soon :)
+                </p>
+                <Link href="/">
+                  <p className="text-sm text-gray-500 text-center underline mt-2">
+                    Back to homepage
+                  </p>
+                </Link>
+              </div>
             </form>
           </CardContent>
         </Card>
