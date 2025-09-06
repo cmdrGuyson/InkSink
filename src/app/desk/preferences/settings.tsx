@@ -110,7 +110,7 @@ const SettingsContent = observer(() => {
   };
 
   return (
-    <Card className="h-[700px] shadow-lg border mx-24">
+    <Card className="min-h-[600px] shadow-lg border mx-24">
       <div className="h-full bg-background flex">
         {/* Sidebar */}
         <div className="w-64 border-r p-4 flex-shrink-0">
