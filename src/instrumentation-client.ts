@@ -10,6 +10,9 @@ Sentry.init({
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: 1,
 
+  // Skip OpenTelemetry setup on client side since we handle it on server
+  skipOpenTelemetrySetup: true,
+
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
   debug: false,
 
