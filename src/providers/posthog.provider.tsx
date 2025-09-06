@@ -14,7 +14,8 @@ function PostHogTracker() {
 
   useEffect(() => {
     posthog.init(process.env.NEXT_PUBLIC_POSTHOG_KEY as string, {
-      api_host:
+      api_host: "/ingest", // Use the reverse proxy endpoint
+      ui_host:
         process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://us.i.posthog.com",
       person_profiles: "identified_only",
       defaults: "2025-05-24",
