@@ -15,6 +15,7 @@ import {
 import CreditsIndicator from "@/components/credits";
 
 import { useAuth } from "@/providers/auth.provider";
+import { Feedback } from "./feedback";
 
 export const Header = () => {
   const { signOut, profile } = useAuth();
@@ -47,6 +48,14 @@ export const Header = () => {
       </div>
       <div className="flex gap-4">
         <div className="flex items-center gap-3">
+          <Feedback />
+          {profile ? (
+            <CreditsIndicator
+              used={50 - profile?.credit_count}
+              limit={50}
+              tier={profile?.tier as "free" | "premium"}
+            />
+          ) : null}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -73,13 +82,6 @@ export const Header = () => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        {profile ? (
-          <CreditsIndicator
-            used={50 - profile?.credit_count}
-            limit={50}
-            tier={profile?.tier as "free" | "premium"}
-          />
-        ) : null}
       </div>
     </header>
   );
