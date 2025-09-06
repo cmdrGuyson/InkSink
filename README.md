@@ -20,13 +20,17 @@ InkSink is a kitchen sink for writing content. An AI assistant that gives you lo
    cp .env.example .env
    ```
 
-3. Run the development server:
+3. Setup Sentry https://docs.sentry.io/platforms/javascript/guides/nextjs/
+
+4. Setup PostHog https://posthog.com/docs/libraries/next-js
+
+5. Run the development server:
 
    ```bash
    yarn dev
    ```
 
-4. For the mastra development server:
+6. For the mastra development server:
 
    ```bash
    yarn mastra

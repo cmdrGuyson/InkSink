@@ -65,7 +65,7 @@ export const useDocumentEditing = ({ documentId }: UseDocumentEditingProps) => {
         }
       }, 1000);
     },
-    [documentId]
+    [documentId, logError]
   );
 
   // Immediate save function for title (called on blur)
@@ -90,7 +90,7 @@ export const useDocumentEditing = ({ documentId }: UseDocumentEditingProps) => {
         setIsSaving(false);
       }
     },
-    [documentId]
+    [documentId, logError]
   );
 
   // Handle content changes
