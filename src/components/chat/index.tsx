@@ -49,6 +49,10 @@ interface ChatProps {
 
 type ChatMetadata = Omit<ChatType, "messages">;
 
+const formatDateTime = (date: string | Date) => {
+  return dayjs(date).format("MMM D, h:mm A");
+};
+
 export const Chat = observer(({ documentId, editor }: ChatProps) => {
   const { chatStore } = useStores();
   const { spendCredit, profile } = useAuth();
@@ -198,10 +202,6 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
         setInput("");
       }
     }
-  };
-
-  const formatDateTime = (date: string | Date) => {
-    return dayjs(date).format("MMM D, h:mm A");
   };
 
   const handleNewChat = () => {

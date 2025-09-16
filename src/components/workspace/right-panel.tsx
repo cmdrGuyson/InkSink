@@ -1,4 +1,4 @@
-import { Chat } from "./chat";
+import { Chat } from "@/components/chat";
 import type { Editor as TiptapEditor } from "@tiptap/react";
 
 interface RightPanelProps {
