@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Content } from "@tiptap/react";
 import { documentStore } from "@/stores/document.store";
 import { toast } from "sonner";
-import { useLogger } from "@/hooks/use-logger";
+import Logger from "@/lib/logger";
 
 interface UseDocumentEditingProps {
   documentId?: string;
@@ -13,7 +13,6 @@ export const useDocumentEditing = ({ documentId }: UseDocumentEditingProps) => {
   const [title, setTitle] = useState("Untitled Document");
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const { logError } = useLogger();
 
   // Debounce refs
   const contentSaveTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
@@ -55,7 +54,7 @@ export const useDocumentEditing = ({ documentId }: UseDocumentEditingProps) => {
           });
           setHasUnsavedChanges(false);
         } catch (error) {
-          logError("Failed to save content", error, {
+          Logger.error("Failed to save content", error, {
             documentId,
             action: "save_document_content",
           });
@@ -65,7 +64,7 @@ export const useDocumentEditing = ({ documentId }: UseDocumentEditingProps) => {
         }
       }, 1000);
     },
-    [documentId, logError]
+    [documentId]
   );
 
   // Immediate save function for title (called on blur)
@@ -80,7 +79,7 @@ export const useDocumentEditing = ({ documentId }: UseDocumentEditingProps) => {
         });
         setHasUnsavedChanges(false);
       } catch (error) {
-        logError("Failed to save title", error, {
+        Logger.error("Failed to save title", error, {
           documentId,
           title: newTitle,
           action: "save_document_title",
@@ -90,7 +89,7 @@ export const useDocumentEditing = ({ documentId }: UseDocumentEditingProps) => {
         setIsSaving(false);
       }
     },
-    [documentId, logError]
+    [documentId]
   );
 
   // Handle content changes

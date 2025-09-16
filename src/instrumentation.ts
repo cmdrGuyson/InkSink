@@ -37,3 +37,6 @@ export function register() {
     Sentry.validateOpenTelemetrySetup();
   }
 }
+
+// Required hook for capturing request errors in Next.js
+export const onRequestError = Sentry.captureRequestError;

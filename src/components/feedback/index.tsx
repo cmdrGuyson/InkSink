@@ -2,7 +2,6 @@
 
 import { usePostHog } from "posthog-js/react";
 import { useEffect, useState } from "react";
-import { useLogger } from "@/hooks/use-logger";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
 import { FrownIcon, MehIcon, SmileIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Logger from "@/lib/logger";
 
 type Mood = "Sad" | "Neutral" | "Happy" | null;
 
@@ -40,7 +40,6 @@ const FeedbackModal = ({ open, onOpenChange }: FeedbackModalProps) => {
   const [selectedMood, setSelectedMood] = useState<Mood>(null);
   const [feedbackText, setFeedbackText] = useState("");
   const posthog = usePostHog();
-  const { logError } = useLogger();
 
   // Reset state when modal is closed
   const handleClose = () => {
@@ -79,7 +78,7 @@ const FeedbackModal = ({ open, onOpenChange }: FeedbackModalProps) => {
       setFeedbackText("");
       onOpenChange(false);
     } catch (error) {
-      logError("Failed to submit feedback", error, {
+      Logger.error("Failed to submit feedback", error, {
         surveyId: survey.id,
         mood: selectedMood,
         action: "feedback_submission",

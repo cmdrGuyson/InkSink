@@ -25,6 +25,17 @@ Sentry.init({
 
   // Enable logs to be sent to Sentry
   enableLogs: true,
+
+  // Configure beforeSend to ensure user context is properly set
+  beforeSend(event) {
+    // You can add additional filtering or modification here if needed
+    return event;
+  },
+
+  // Set initial user context to undefined - it will be updated by the AuthProvider
+  initialScope: {
+    user: undefined,
+  },
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

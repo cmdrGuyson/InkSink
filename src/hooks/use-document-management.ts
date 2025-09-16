@@ -2,11 +2,10 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { documentStore } from "@/stores/document.store";
 import { toast } from "sonner";
-import { useLogger } from "@/hooks/use-logger";
+import Logger from "@/lib/logger";
 
 export const useDocumentManagement = () => {
   const router = useRouter();
-  const { logError } = useLogger();
   const [isOpenDocumentsModalOpen, setIsOpenDocumentsModalOpen] =
     useState(false);
   const [isCreatingDocument, setIsCreatingDocument] = useState(false);
@@ -23,7 +22,7 @@ export const useDocumentManagement = () => {
         router.push(`/desk/write/${newDocument.id}`);
       }
     } catch (error) {
-      logError("Failed to create document", error, {
+      Logger.error("Failed to create document", error, {
         action: "create_document",
       });
       toast.error("Failed to create document. Please try again.");

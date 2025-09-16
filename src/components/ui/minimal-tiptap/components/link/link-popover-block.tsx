@@ -6,7 +6,7 @@ import {
   ExternalLinkIcon,
   LinkBreak2Icon,
 } from "@radix-ui/react-icons";
-import { useLogger } from "@/hooks/use-logger";
+import Logger from "@/lib/logger";
 
 interface LinkPopoverBlockProps {
   url: string;
@@ -20,7 +20,6 @@ export const LinkPopoverBlock: React.FC<LinkPopoverBlockProps> = ({
   onEdit,
 }) => {
   const [copyTitle, setCopyTitle] = React.useState<string>("Copy");
-  const { logError } = useLogger();
 
   const handleCopy = React.useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -32,13 +31,13 @@ export const LinkPopoverBlock: React.FC<LinkPopoverBlockProps> = ({
           setTimeout(() => setCopyTitle("Copy"), 1000);
         })
         .catch((error) => {
-          logError("Failed to copy link to clipboard", error, {
+          Logger.error("Failed to copy link to clipboard", error, {
             url,
             action: "copy_link",
           });
         });
     },
-    [url, logError]
+    [url]
   );
 
   const handleOpenLink = React.useCallback(() => {

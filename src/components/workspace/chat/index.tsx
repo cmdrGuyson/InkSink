@@ -16,7 +16,6 @@ import { CopyIcon } from "@radix-ui/react-icons";
 import { ChatMessage, useChatStream } from "@/hooks/use-chat-stream";
 import { observer } from "mobx-react-lite";
 import { useStores } from "@/providers/store.provider";
-import { useLogger } from "@/hooks/use-logger";
 import { useParams } from "next/navigation";
 import type { Chat as ChatType } from "@/services/chat.service";
 import type { Editor as TiptapEditor } from "@tiptap/react";
@@ -41,6 +40,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Logger from "@/lib/logger";
 
 interface ChatProps {
   documentId?: string;
@@ -52,7 +52,7 @@ type ChatMetadata = Omit<ChatType, "messages">;
 export const Chat = observer(({ documentId, editor }: ChatProps) => {
   const { chatStore } = useStores();
   const { spendCredit, profile } = useAuth();
-  const { logError } = useLogger();
+
   const params = useParams();
 
   const [recentChats, setRecentChats] = useState<ChatMetadata[]>([]);
@@ -70,12 +70,12 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
         await chatStore.loadChatMetadataForDocument(currentDocumentId);
       setRecentChats(chatMetadata.slice(0, 10)); // Get only the 10 most recent
     } catch (error) {
-      logError("Failed to load recent chats", error, {
+      Logger.error("Failed to load recent chats", error, {
         documentId,
         action: "load_recent_chats",
       });
     }
-  }, [currentDocumentId, chatStore]);
+  }, [currentDocumentId, chatStore, documentId]);
 
   const handleSelectPrompt = (content: string) => {
     setInput(content);
@@ -87,7 +87,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
       setCopiedMessageId(messageId);
       setTimeout(() => setCopiedMessageId(null), 2000);
     } catch (error) {
-      logError("Failed to copy message", error, {
+      Logger.error("Failed to copy message", error, {
         messageId,
         action: "copy_message",
       });
@@ -120,7 +120,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
               firstUserMessage.content
             );
           } catch (error) {
-            logError("Failed to generate chat title", error, {
+            Logger.error("Failed to generate chat title", error, {
               documentId: currentDocumentId,
               action: "generate_chat_title",
             });
@@ -139,7 +139,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
       // Spend a credit
       spendCredit();
     } catch (error) {
-      logError("Failed to save messages", error, {
+      Logger.error("Failed to save messages", error, {
         documentId: currentDocumentId,
         messageCount: finalMessages.length,
         action: "save_messages",
@@ -220,7 +220,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
         setMessages(fromJson(selectedChat.messages));
       }
     } catch (error) {
-      logError("Failed to select chat", error, {
+      Logger.error("Failed to select chat", error, {
         chatId,
         action: "select_chat",
       });
@@ -243,7 +243,7 @@ export const Chat = observer(({ documentId, editor }: ChatProps) => {
       // Reload recent chats after deletion
       await loadRecentChats();
     } catch (error) {
-      logError("Failed to delete chat", error, {
+      Logger.error("Failed to delete chat", error, {
         chatId,
         action: "delete_chat",
       });

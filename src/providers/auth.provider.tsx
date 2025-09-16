@@ -5,6 +5,7 @@ import { User } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { Profile, ProfileService } from "@/services/profile.service";
+import { useSentryUser } from "@/hooks/use-sentry-user";
 
 interface AuthContextType {
   user: User | null;
@@ -25,6 +26,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isProfileLoading, setIsProfileLoading] = useState(true);
+
+  // Set Sentry user context based on authentication state
+  useSentryUser({
+    user,
+    profile,
+    loading: loading || isProfileLoading,
+  });
 
   useEffect(() => {
     const fetchUserProfile = async (id: string) => {
