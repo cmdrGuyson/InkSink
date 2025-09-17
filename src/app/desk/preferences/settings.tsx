@@ -225,17 +225,51 @@ const SettingsContent = observer(() => {
   );
 });
 
-// Loading fallback component
-const SettingsFallback = () => (
-  <Card className="h-[700px] shadow-lg border mx-24">
-    <div className="h-full bg-background flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-muted-foreground">Loading settings...</p>
+// Skeletal loader component
+const SkeletalLoader = () => (
+  <Card className="min-h-[600px] shadow-lg border mx-24">
+    <div className="h-full bg-background flex">
+      {/* Sidebar skeleton */}
+      <div className="w-64 border-r p-4 flex-shrink-0">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-5 w-5 bg-muted rounded animate-pulse"></div>
+          <div className="h-6 w-20 bg-muted rounded animate-pulse"></div>
+        </div>
+
+        <nav className="space-y-2">
+          <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
+          <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
+        </nav>
+      </div>
+
+      {/* Main content skeleton */}
+      <div className="flex-1 flex flex-col min-w-120">
+        <div className="w-full h-full p-6">
+          <div className="w-full max-w-3xl h-full mx-auto">
+            {/* Header skeleton */}
+            <div className="mb-6 flex-shrink-0">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="h-5 w-5 bg-muted rounded animate-pulse"></div>
+                <div className="h-6 w-48 bg-muted rounded animate-pulse"></div>
+              </div>
+              <div className="h-4 w-96 bg-muted rounded animate-pulse"></div>
+            </div>
+
+            {/* Content skeleton */}
+            <div className="space-y-6">
+              <div className="h-32 bg-muted rounded-lg animate-pulse"></div>
+              <div className="h-24 bg-muted rounded-lg animate-pulse"></div>
+              <div className="h-40 bg-muted rounded-lg animate-pulse"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </Card>
 );
+
+// Loading fallback component
+const SettingsFallback = () => <SkeletalLoader />;
 
 // Main Settings component wrapped in Suspense
 const Settings = () => {

@@ -10,10 +10,17 @@ const Usage = () => {
 
   if (!profile) {
     return (
-      <div className="w-full h-full flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading usage information...</p>
+      <div className="w-full h-full flex flex-col">
+        <div className="mb-6 flex-shrink-0">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-5 w-5 bg-muted rounded animate-pulse"></div>
+            <div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
+          </div>
+          <div className="h-4 w-80 bg-muted rounded animate-pulse"></div>
+        </div>
+
+        <div className="flex-1 space-y-6">
+          <div className="h-48 bg-muted rounded-lg animate-pulse"></div>
         </div>
       </div>
     );
