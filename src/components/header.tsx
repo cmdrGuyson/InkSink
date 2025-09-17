@@ -30,7 +30,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="flex items-center justify-between py-3 bg-background border-b px-24">
+    <header className="flex items-center justify-between py-3 bg-background border-b px-4 md:px-24">
       <div className="flex items-center">
         <Link
           href="/desk/write"
@@ -46,7 +46,7 @@ export const Header = () => {
           InkSink
         </Link>
       </div>
-      <div className="flex gap-4">
+      <div className="flex gap-2 md:gap-4">
         <div className="flex items-center gap-3">
           <Feedback />
           {profile ? (

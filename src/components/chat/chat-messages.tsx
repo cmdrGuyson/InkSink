@@ -29,6 +29,7 @@ interface ChatMessagesProps {
   copiedMessageId: number | null;
   onCopyMessage: (content: string, messageId: number) => void;
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
+  showCopyAlways?: boolean;
 }
 
 // Loading Indicator Component
@@ -67,6 +68,7 @@ const AssistantMessage = ({
   isLastMessage,
   copiedMessageId,
   onCopyMessage,
+  showCopyAlways,
 }: {
   message: Message;
   messageId: number;
@@ -74,6 +76,7 @@ const AssistantMessage = ({
   isLastMessage: boolean;
   copiedMessageId: number | null;
   onCopyMessage: (content: string, messageId: number) => void;
+  showCopyAlways?: boolean;
 }) => {
   const showThinkingIndicator =
     isThinking && isLastMessage && message.content === "";
@@ -111,7 +114,13 @@ const AssistantMessage = ({
           <p className="text-xs text-muted-foreground">
             {formatDateTime(message.createdAt)}
           </p>
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+          <div
+            className={
+              showCopyAlways
+                ? "opacity-100"
+                : "opacity-0 group-hover:opacity-100 transition-opacity"
+            }
+          >
             <Tooltip delayDuration={0} open={copiedMessageId === messageId}>
               <TooltipTrigger asChild>
                 <Button
@@ -159,6 +168,7 @@ export const ChatMessages = ({
   copiedMessageId,
   onCopyMessage,
   messagesEndRef,
+  showCopyAlways,
 }: ChatMessagesProps) => {
   const hasError = error || streamError;
   const shouldShowThinkingIndicator =
@@ -186,6 +196,7 @@ export const ChatMessages = ({
             isLastMessage={isLastMessage}
             copiedMessageId={copiedMessageId}
             onCopyMessage={onCopyMessage}
+            showCopyAlways={showCopyAlways}
           />
         );
       })}
