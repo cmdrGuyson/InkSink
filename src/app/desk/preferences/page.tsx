@@ -2,7 +2,7 @@ import Settings from "./settings";
 
 const PreferencesPage = () => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4 ">
+    <div className="min-h-screen bg-background p-0 md:p-4">
       <Settings />
     </div>
   );

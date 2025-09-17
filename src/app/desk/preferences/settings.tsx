@@ -114,16 +114,16 @@ const SettingsContent = observer(() => {
   };
 
   return (
-    <Card className="min-h-[600px] shadow-lg border mx-24">
-      <div className="h-full bg-background flex">
+    <Card className="min-h-[600px] shadow-none md:shadow-lg md:border md:rounded-lg border-0 rounded-none mx-0 md:mx-24">
+      <div className="h-full bg-background flex flex-col md:flex-row">
         {/* Sidebar */}
-        <div className="w-64 border-r p-4 flex-shrink-0">
+        <div className="w-full md:w-64 border-b md:border-b-0 md:border-r p-3 md:p-4 flex-shrink-0 sticky top-0 bg-background z-10">
           <div className="flex items-center gap-3 mb-6">
             <SettingsIcon className="h-5 w-5 text-primary" />
             <h1 className="text-lg font-semibold">Settings</h1>
           </div>
 
-          <nav className="space-y-2">
+          <nav className="grid grid-cols-2 gap-2 md:block md:space-y-2">
             {/* <Button
               variant={activeSection === "app" ? "default" : "ghost"}
               className="w-full justify-start gap-3"
@@ -154,8 +154,8 @@ const SettingsContent = observer(() => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col min-w-120">
-          <div className="w-full h-full p-6 overflow-y-auto">
+        <div className="flex-1 flex flex-col min-w-0">
+          <div className="w-full h-full p-4 md:p-6 overflow-y-auto">
             <div className="w-full max-w-3xl h-full mx-auto">
               {activeSection === "app" && (
                 <div className="w-full h-full flex flex-col">
@@ -227,24 +227,24 @@ const SettingsContent = observer(() => {
 
 // Skeletal loader component
 const SkeletalLoader = () => (
-  <Card className="min-h-[600px] shadow-lg border mx-24">
-    <div className="h-full bg-background flex">
+  <Card className="min-h-[600px] shadow-none md:shadow-lg md:border md:rounded-lg border-0 rounded-none mx-0 md:mx-24">
+    <div className="h-full bg-background flex flex-col md:flex-row">
       {/* Sidebar skeleton */}
-      <div className="w-64 border-r p-4 flex-shrink-0">
+      <div className="w-full md:w-64 border-b md:border-b-0 md:border-r p-3 md:p-4 flex-shrink-0">
         <div className="flex items-center gap-3 mb-6">
           <div className="h-5 w-5 bg-muted rounded animate-pulse"></div>
           <div className="h-6 w-20 bg-muted rounded animate-pulse"></div>
         </div>
 
-        <nav className="space-y-2">
+        <nav className="grid grid-cols-2 gap-2 md:block md:space-y-2">
           <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
           <div className="h-10 w-full bg-muted rounded animate-pulse"></div>
         </nav>
       </div>
 
       {/* Main content skeleton */}
-      <div className="flex-1 flex flex-col min-w-120">
-        <div className="w-full h-full p-6">
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="w-full h-full p-4 md:p-6">
           <div className="w-full max-w-3xl h-full mx-auto">
             {/* Header skeleton */}
             <div className="mb-6 flex-shrink-0">
