@@ -4,7 +4,7 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator,
   DropdownMenuItem,
-} from "@radix-ui/react-dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import { Clock, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ChatMetadata } from "@/hooks/use-chat";
