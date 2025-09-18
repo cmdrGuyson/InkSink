@@ -67,6 +67,22 @@ export const Chat = observer(
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
+    useEffect(() => {
+      const handler = (e: Event) => {
+        const custom = e as CustomEvent<{ text: string }>;
+        if (custom.detail?.text) {
+          setInput((prev) => {
+            // If input is empty, set to selection; else append with newline
+            if (!prev) return custom.detail.text;
+            return `${prev}\n\n${custom.detail.text}`;
+          });
+        }
+      };
+      window.addEventListener("refine-in-chat", handler as EventListener);
+      return () =>
+        window.removeEventListener("refine-in-chat", handler as EventListener);
+    }, []);
+
     const handleKeyPress = (e: React.KeyboardEvent) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
