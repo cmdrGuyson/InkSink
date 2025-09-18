@@ -10,6 +10,7 @@ import { SectionThree } from "./components/section/three";
 import { SectionFour } from "./components/section/four";
 import { SectionFive } from "./components/section/five";
 import { LinkBubbleMenu } from "./components/bubble-menu/link-bubble-menu";
+import { SelectionBubbleMenu } from "./components/bubble-menu/selection-bubble-menu";
 import { MeasuredContainer } from "./components/measured-container";
 
 export interface MinimalTiptapProps {
@@ -86,6 +87,7 @@ export const MinimalTiptapEditor = ({
         className={cn("minimal-tiptap-editor", editorContentClassName)}
       />
       <LinkBubbleMenu editor={editor} />
+      <SelectionBubbleMenu editor={editor} />
     </MeasuredContainer>
   );
 };
